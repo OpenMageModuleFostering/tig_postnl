@@ -1429,10 +1429,19 @@ PostnlDeliveryOptions.prototype = {
             excl : this.getExtraCosts(false)
         };
 
+        var from = selectedOption.from;
+        if (selectedType == 'PG') {
+            from = '16:00:00';
+        } else if (selectedType == 'PGE') {
+            from = '08:30:00'
+        }
+
         var params = {
             isAjax : true,
             type   : selectedType,
             date   : selectedOption.getDate(),
+            from   : from,
+            to     : selectedOption.to,
             costs  : Object.toJSON(extraCosts)
         };
 
@@ -1694,6 +1703,7 @@ PostnlDeliveryOptions.Map = new Class.create({
 
     filterEarly                   : false,
     filterEvening                 : false,
+    filterPA                      : false,
 
     /**
      * Constructor method.
@@ -1887,6 +1897,16 @@ PostnlDeliveryOptions.Map = new Class.create({
 
     setFilterEvening : function(filter) {
         this.filterEvening = filter;
+
+        return this;
+    },
+
+    getFilterPa : function() {
+        return this.filterPa;
+    },
+
+    setFilterPa : function(filter) {
+        this.filterPa = filter;
 
         return this;
     },
@@ -2186,6 +2206,30 @@ PostnlDeliveryOptions.Map = new Class.create({
             } else {
                 this.setFilterEvening(true);
                 eveningPickupFilterResp.addClassName('selected');
+            }
+            this.filter();
+        }.bind(this));
+
+        var paPickupFilter = $('pa-filter');
+        paPickupFilter.observe('click', function() {
+            if (paPickupFilter.hasClassName('selected')) {
+                this.setFilterPa(false);
+                paPickupFilter.removeClassName('selected');
+            } else {
+                this.setFilterPa(true);
+                paPickupFilter.addClassName('selected');
+            }
+            this.filter();
+        }.bind(this));
+
+        var paPickupFilterResp = $('pa-filter-responsive');
+        paPickupFilterResp.observe('click', function() {
+            if (paPickupFilterResp.hasClassName('selected')) {
+                this.setFilterPa(false);
+                paPickupFilterResp.removeClassName('selected');
+            } else {
+                this.setFilterPa(true);
+                paPickupFilterResp.addClassName('selected');
             }
             this.filter();
         }.bind(this));
@@ -2932,6 +2976,7 @@ PostnlDeliveryOptions.Map = new Class.create({
              * icon on hover.
              */
             google.maps.event.addListener(marker, "click", this.markerOnClick.bind(this, marker));
+            google.maps.event.addListener(marker, "dblclick", this.markerOnDblClick.bind(this, marker));
             google.maps.event.addListener(marker, "mouseover", this.markerOnMouseOver.bind(this, marker));
             google.maps.event.addListener(marker, "mousedown", this.markerOnMouseDown.bind(this));
             google.maps.event.addListener(marker, "mouseup", this.markerOnMouseUp.bind(this));
@@ -3262,6 +3307,22 @@ PostnlDeliveryOptions.Map = new Class.create({
     },
 
     /**
+     * @param {*} marker
+     *
+     * @returns {PostnlDeliveryOptions.Map}
+     */
+    markerOnDblClick : function(marker) {
+        if (this.getIsInfoWindowOpen()) {
+            return this;
+        }
+
+        this.selectMarker(marker, true, true);
+        this.saveLocation();
+
+        return this;
+    },
+
+    /**
      * Update the marker's icon on mouseover.
      *
      * @param {*} marker
@@ -3562,12 +3623,13 @@ PostnlDeliveryOptions.Map = new Class.create({
     filter : function() {
         var filterEarly       = this.getFilterEarly();
         var filterEvening     = this.getFilterEvening();
+        var filterPa          = this.getFilterPa();
         var locations         = this.getLocations();
         var hasVisibleMarkers = false;
 
         locations.each(function(location) {
+            var type = location.getType();
             if (filterEarly) {
-                var type = location.getType();
                 if (type.indexOf('PGE') < 0 && type.indexOf('PA') < 0) {
                     location.getMapElement().hide();
                     location.getResponsiveMapElement().hide();
@@ -3579,6 +3641,16 @@ PostnlDeliveryOptions.Map = new Class.create({
 
             if (filterEvening) {
                 if (!location.getIsEveningLocation()) {
+                    location.getMapElement().hide();
+                    location.getResponsiveMapElement().hide();
+                    location.getMarker().setVisible(false);
+
+                    return false;
+                }
+            }
+
+            if (filterPa) {
+                if (type.indexOf('PA') < 0) {
                     location.getMapElement().hide();
                     location.getResponsiveMapElement().hide();
                     location.getMarker().setVisible(false);
@@ -4186,8 +4258,6 @@ PostnlDeliveryOptions.Location = new Class.create({
             }
 
             commentHtml = Translator.translate('early delivery') + extraCostHtml;
-        } else if (type == 'PA') {
-            commentHtml = '24/7 ' + Translator.translate('available');
         }
 
         return commentHtml;
@@ -4501,7 +4571,7 @@ PostnlDeliveryOptions.Location = new Class.create({
 
         var businessHoursText = '';
         if (this.getType().indexOf('PA') > -1) {
-            businessHoursText = Translator.translate('open 24/7');
+            businessHoursText = Translator.translate('parcel dispenser');
         } else {
             businessHoursText = Translator.translate('business hours');
         }
@@ -4567,6 +4637,39 @@ PostnlDeliveryOptions.Location = new Class.create({
                     this.getLocationCode()
                 );
             }
+            return true;
+        }.bind(this));
+
+        element.observe('dblclick', function(event) {
+            var map = this.getMap();
+
+            event.stop();
+
+            if (Event.element(event).hasClassName('location-info')) {
+                return false;
+            }
+
+            if (!this.getMarker()) {
+                return false;
+            }
+
+            if (map.getSelectedMarker() == this.getMarker()) {
+                map.saveLocation();
+                return false;
+            }
+
+            this.setOldCenter(this.getMarker().getPosition());
+
+            map.selectMarker(this.getMarker(), false, true);
+
+            if (map.getIsInfoWindowOpen()) {
+                map.openLocationInfoWindow(
+                    this.getMapTooltipHtml(),
+                    this.getLocationCode()
+                );
+            }
+
+            map.saveLocation();
             return true;
         }.bind(this));
 
