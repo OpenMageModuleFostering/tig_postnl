@@ -24,15 +24,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 PostnlPostcodecheck = new Class.create({
@@ -95,28 +95,22 @@ PostnlPostcodecheck = new Class.create({
         }
 
         var postcodeCheck = this;
+        $(countryField).observe('change', function() {
+            countryId = this.getValue();
 
-        if($(countryField) === null || $(countryField).hasClassName('country_hidden') == false) {
+            $('postnl_address_error_' + addressType).hide();
+            $('postnl_address_missing_' + addressType).hide();
+            $('postnl_address_invalid_' + addressType).hide();
 
-            $(countryField).observe('change', function() {
-                countryId = this.getValue();
+            postcodeCheck.changePostcodeCheckDisabledFields(countryId);
 
-                $('postnl_address_error_' + addressType).hide();
-                $('postnl_address_missing_' + addressType).hide();
-                $('postnl_address_invalid_' + addressType).hide();
+            if (countryId == 'NL') {
+                postcode = $(postcodeField).getValue();
+                housenumber = $(virtualPrefix + housenumberField).getValue();
 
-                postcodeCheck.changePostcodeCheckDisabledFields(countryId);
-
-                if (countryId == 'NL') {
-                    postcode = $(postcodeField).getValue();
-                    housenumber = $(virtualPrefix + housenumberField).getValue();
-
-                    postcodeCheck.checkPostcode(postcode, housenumber);
-                }
-            });
-        } else {
-            countryField = 'billing:country_id';
-        }
+                postcodeCheck.checkPostcode(postcode, housenumber);
+            }
+        });
 
         $(postcodeField).observe('change', function() {
             var postcode = this.getValue();
@@ -215,17 +209,17 @@ PostnlPostcodecheck = new Class.create({
             this.inProgressAborted = false;
         }
 
-        this.inProgressRequest = new Ajax.PostnlRequest(postcodecheckUrl, {
-            method       : 'post',
-            parameters   : {
+        var request = new Ajax.PostnlRequest(postcodecheckUrl,{
+            method: 'post',
+            parameters: {
                 postcode    : postcode,
                 housenumber : housenumber,
                 isAjax      : true
             },
-            onCreate     : function () {
+            onCreate : function() {
                 document.fire('postnl:postcodeCheckStart');
             },
-            onSuccess    : function (response) {
+            onSuccess: function(response) {
                 var spinner = $('postnl_postcodecheck_spinner_' + addressType);
 
                 if (response.responseText == 'error') {
@@ -284,7 +278,7 @@ PostnlPostcodecheck = new Class.create({
 
                 document.fire('postnl:postcodeCheckSuccess');
             },
-            onFailure    : function () {
+            onFailure: function() {
                 if (postcodeCheck.inProgressAborted) {
                     return;
                 }
@@ -299,15 +293,16 @@ PostnlPostcodecheck = new Class.create({
                 postcodeCheck.inProgressRequest = false;
                 $('postnl_postcodecheck_spinner_' + addressType).hide();
             },
-            onTimeout    : function () {
+            onTimeout: function() {
                 $('postnl_address_error_' + addressType).show();
                 postcodeCheck.changePostcodeCheckDisabledFields(false);
 
                 postcodeCheck.inProgressRequest = false;
                 $('postnl_postcodecheck_spinner_' + addressType).hide();
             },
-            timeoutDelay : postcodeCheck.timeoutDelay
+            timeoutDelay: postcodeCheck.timeoutDelay
         });
+        this.inProgressRequest = request;
 
         return true;
     },

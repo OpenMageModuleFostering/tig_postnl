@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_Checkout_Observer_Shipment
@@ -45,7 +45,7 @@ class TIG_PostNL_Model_Checkout_Observer_Shipment
      *
      * @param Varien_Event_Observer $observer
      *
-     * @return $this
+     * @return TIG_PostNL_Model_Core_Observer_Barcode
      *
      * @event postnl_shipment_confirm_after
      *
@@ -58,12 +58,9 @@ class TIG_PostNL_Model_Checkout_Observer_Shipment
         /**
          * @var TIG_PostNL_Model_Core_Shipment $postnlShipment
          */
-        /** @noinspection PhpUndefinedMethodInspection */
         $postnlShipment = $observer->getShipment();
 
         $orderId = $postnlShipment->getOrderId();
-
-        /** @var TIG_PostNL_Model_Core_Order $postnlOrder */
         $postnlOrder = Mage::getModel('postnl_core/order');
         $postnlOrder->load($orderId, 'order_id');
         if (!$postnlOrder->getId() || !$postnlOrder->getToken()) {
@@ -71,7 +68,6 @@ class TIG_PostNL_Model_Checkout_Observer_Shipment
         }
 
         try {
-            /** @var TIG_PostNL_Model_Checkout_Cif $cif */
             $cif = Mage::getModel('postnl_checkout/cif');
             $result = $cif->updateOrder($postnlOrder);
 
@@ -82,7 +78,6 @@ class TIG_PostNL_Model_Checkout_Observer_Shipment
                 );
             }
         } catch (TIG_PostNL_Exception $e) {
-            /** @var TIG_PostNL_Helper_Data $helper */
             $helper = Mage::helper('postnl');
             $helper->addSessionMessage(
                 'adminhtml/session',
@@ -92,7 +87,6 @@ class TIG_PostNL_Model_Checkout_Observer_Shipment
             );
             return $this;
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_Data $helper */
             $helper = Mage::helper('postnl');
             $helper->addSessionMessage(
                 'adminhtml/session',

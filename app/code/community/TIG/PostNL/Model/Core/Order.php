@@ -25,84 +25,48 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * Class TIG_PostNL_Model_Core_Order
  *
- * @method string                      getConfirmDate()
- * @method int                         getIsActive()
- * @method string                      getToken()
- * @method string                      getShipmentCosts()
- * @method string                      getProductCode()
- * @method int                         getIsPakjeGemak()
- * @method int                         getIsCanceled()
- * @method string                      getDeliveryDate()
- * @method int                         getQuoteId()
- * @method string                      getType()
- * @method int                         getOrderId()
- * @method int                         getEntityId()
- * @method string                      getMobilePhoneNumber()
- * @method int                         getIsPakketautomaat()
- * @method array|boolean               getUnserializedOptions()
- * @method string                      getExpectedDeliveryTimeStart()
- * @method string                      getExpectedDeliveryTimeEnd()
- * @method string                      getUpdatedAt()
- * @method string                      getCreatedAt()
- * @method string                      getPgLocationCode()
- * @method string                      getPgRetailNetworkId()
- * @method string                      getIdcheckType()
- * @method string                      getIdcheckNumber()
- * @method string                      getIdcheckExpirationDate()
- *
- * @method TIG_PostNL_Model_Core_Order setIsPakketautomaat(int $value)
+ * @method string getConfirmDate()
+ * @method TIG_PostNL_Model_Core_Order setConfirmDate(string $value)
+ * @method int getIsActive()
+ * @method TIG_PostNL_Model_Core_Order setIsActive(int $value)
+ * @method string getToken()
+ * @method TIG_PostNL_Model_Core_Order setToken(string $value)
+ * @method string getShipmentCosts()
+ * @method TIG_PostNL_Model_Core_Order setShipmentCosts(string $value)
+ * @method string getProductCode()
+ * @method TIG_PostNL_Model_Core_Order setProductCode(string $value)
+ * @method int getIsPakjeGemak()
+ * @method TIG_PostNL_Model_Core_Order setIsPakjeGemak(int $value)
+ * @method int getIsCanceled()
+ * @method TIG_PostNL_Model_Core_Order setIsCanceled(int $value)
+ * @method string getDeliveryDate()
+ * @method TIG_PostNL_Model_Core_Order setDeliveryDate(string $value)
+ * @method int getQuoteId()
+ * @method TIG_PostNL_Model_Core_Order setQuoteId(int $value)
+ * @method string getType()
+ * @method TIG_PostNL_Model_Core_Order setType(string $value)
+ * @method int getOrderId()
+ * @method TIG_PostNL_Model_Core_Order setOrderId(int $value)
+ * @method int getEntityId()
+ * @method string getMobilePhoneNumber()
  * @method TIG_PostNL_Model_Core_Order setEntityId(int $value)
  * @method TIG_PostNL_Model_Core_Order setOrder(Mage_Sales_Model_Order $value)
  * @method TIG_PostNL_Model_Core_Order setQuote(Mage_Sales_Model_Quote $value)
- * @method TIG_PostNL_Model_Core_Order setOrderId(int $value)
- * @method TIG_PostNL_Model_Core_Order setQuoteId(int $value)
- * @method TIG_PostNL_Model_Core_Order setDeliveryDate(string $value)
- * @method TIG_PostNL_Model_Core_Order setIsCanceled(int $value)
- * @method TIG_PostNL_Model_Core_Order setIsPakjeGemak(int $value)
- * @method TIG_PostNL_Model_Core_Order setProductCode(string $value)
- * @method TIG_PostNL_Model_Core_Order setShipmentCosts(string $value)
- * @method TIG_PostNL_Model_Core_Order setToken(string $value)
- * @method TIG_PostNL_Model_Core_Order setIsActive(int $value)
- * @method TIG_PostNL_Model_Core_Order setConfirmDate(string $value)
- * @method TIG_PostNL_Model_Core_Order setPakjeGemakAddress(mixed $value)
- * @method TIG_PostNL_Model_Core_Order setUnserializedOptions(array $value)
- * @method TIG_PostNL_Model_Core_Order setExpectedDeliveryTimeStart(string $value)
- * @method TIG_PostNL_Model_Core_Order setExpectedDeliveryTimeEnd(string $value)
- * @method TIG_PostNL_Model_Core_Order setStoreId(int $value)
- * @method TIG_PostNL_Model_Core_Order setPgLocationCode(string $value)
- * @method TIG_PostNL_Model_Core_Order setPgRetailNetworkId(string $value)
- * @method TIG_PostNL_Model_Core_Order setIdcheckType(string $value)
- * @method TIG_PostNL_Model_Core_Order setIdcheckNumber(string $value)
- * @method TIG_PostNL_Model_Core_Order setIdcheckExpirationDate(string $value)
- *
- * @method boolean                     hasOrderId()
- * @method boolean                     hasQuoteId()
- * @method boolean                     hasPakjeGemakAddress()
- * @method boolean                     hasConfirmDate()
- * @method boolean                     hasDeliveryDate()
- * @method boolean                     hasUnserializedOptions()
- * @method boolean                     hasOptions()
- * @method boolean                     hasExpectedDeliveryTimeStart()
- * @method boolean                     hasExpectedDeliveryTimeEnd()
- * @method boolean                     hasStoreId()
- * @method string                      hasPgLocationCode()
- * @method string                      hasPgRetailNetworkId()
- * @method string                      hasIdcheckType()
- * @method string                      hasIdcheckNumber()
- * @method string                      hasIdcheckExpirationDate()
+ * @method int getIsPakketautomaat()
+ * @method TIG_PostNL_Model_Core_Order setIsPakketautomaat(int $value)
  */
 class TIG_PostNL_Model_Core_Order extends Mage_Core_Model_Abstract
 {
@@ -115,73 +79,15 @@ class TIG_PostNL_Model_Core_Order extends Mage_Core_Model_Abstract
     const MOBILE_PHONE_NUMBER_CONTENT_REGEX      = '/[^0-9+]/';
 
     /**
-     * Available types.
-     */
-    const TYPE_OVERDAG       = 'Overdag';
-    const TYPE_AVOND         = 'Avond';
-    const TYPE_SUNDAY        = 'Sunday';
-    const TYPE_PG            = 'PG';
-    const TYPE_PGE           = 'PGE';
-    const TYPE_PA            = 'PA';
-    const TYPE_SAMEDAY       = 'Sameday';
-    const TYPE_FOOD          = 'Food';
-    const TYPE_COOLED_FOOD   = 'Cooledfood';
-    const TYPE_AGECHECK      = 'AgeCheck';
-    const TYPE_BIRTHDAYCHECK = 'BirthdayCheck';
-    const TYPE_IDCHECK       = 'IDCheck';
-
-    /**
      * Prefix of model events names.
      *
      * @var string
      */
     protected $_eventPrefix = 'postnl_order';
 
-    /**
-     * PostNL order types considered to be 'PakjeGemak';
-     *
-     * @var array
-     */
-    protected $_pakjeGemakTypes = array(
-        'PG',
-        'PGE',
-        'PA'
-    );
-
     public function _construct()
     {
         $this->_init('postnl_core/order');
-    }
-
-    /**
-     * @return array
-     */
-    public function getPakjeGemakTypes()
-    {
-        return $this->_pakjeGemakTypes;
-    }
-
-    /**
-     * Get this PostNL order's store ID.
-     *
-     * @return int
-     */
-    public function getStoreId()
-    {
-        if ($this->hasStoreId()) {
-            return $this->_getData('store_id');
-        }
-
-        if ($this->hasOrderId()) {
-            $storeId = $this->getOrder()->getStoreId();
-        } elseif ($this->hasQuoteId()) {
-            $storeId = $this->getQuote()->getStoreId();
-        } else {
-            $storeId = Mage::app()->getStore()->getId();
-        }
-
-        $this->setStoreId($storeId);
-        return $storeId;
     }
 
     /**
@@ -294,226 +200,6 @@ class TIG_PostNL_Model_Core_Order extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Gets a pakje_gemak address from either the order or the quote associated with this PostNL order.
-     *
-     * @return bool|Mage_Sales_Model_Order_Address|Mage_Sales_Model_Quote_Address
-     */
-    public function getPakjeGemakAddress()
-    {
-        if ($this->hasPakjeGemakAddress()) {
-            return $this->_getData('pakje_gemak_address');
-        }
-
-        $type = $this->getType();
-        if ($type != 'PG' && $type != 'PGE' && $type != 'PA') {
-            $this->setPakjeGemakAddress(false);
-
-            return false;
-        }
-
-        if ($this->hasOrderId()) {
-            $order     = $this->getOrder();
-            $addresses = $order->getAddressesCollection();
-        } elseif ($this->hasQuoteId()) {
-            $quote     = $this->getQuote();
-            $addresses = $quote->getAddressesCollection();
-        } else {
-            $this->setPakjeGemakAddress(false);
-
-            return false;
-        }
-
-        /**
-         * @var Mage_Sales_Model_Order_Address|Mage_Sales_Model_Quote_Address $address
-         */
-        foreach ($addresses as $address) {
-            if ($address->getAddressType() == 'pakje_gemak' ) {
-                $this->setPakjeGemakAddress($address);
-
-                return $address;
-            }
-        }
-
-        $this->setPakjeGemakAddress(false);
-
-        return false;
-    }
-
-    /**
-     * @return array|boolean
-     */
-    public function getOptions()
-    {
-        if ($this->hasUnserializedOptions()) {
-            return $this->getUnserializedOptions();
-        }
-
-        $options = $this->_getData('options');
-
-        if (!empty($options)) {
-            $options = unserialize($options);
-        }
-
-
-        $this->setUnserializedOptions($options);
-        return $options;
-    }
-
-    /**
-     * @param array|boolean|null $options
-     *
-     * @return $this
-     */
-    public function setOptions($options)
-    {
-
-        $this->setUnserializedOptions($options);
-
-        /**
-         * If the options are an empty array, remove the options instead. Otherwise, serialize the array before saving.
-         */
-        if (is_array($options)) {
-            if (empty($options)) {
-                $options = false;
-            } else {
-                $options = serialize($options);
-            }
-        }
-
-        $this->setData('options', $options);
-
-        return $this;
-    }
-
-    /**
-     * @param Mage_Sales_Model_Order $order
-     *
-     * @return $this
-     */
-    public function loadByOrder(Mage_Sales_Model_Order $order)
-    {
-        $orderId = $order->getId();
-
-        $this->load($orderId, 'order_id');
-        return $this;
-    }
-
-    /**
-     * @param Mage_Sales_Model_Quote $quote
-     *
-     * @return $this
-     */
-    public function loadByQuote(Mage_Sales_Model_Quote $quote)
-    {
-        $quoteId = $quote->getId();
-        $this->load($quoteId, 'quote_id');
-
-        return $this;
-    }
-
-    /**
-     * Check if this order is a PakjeGemak order.
-     *
-     * @return boolean
-     */
-    public function isPakjeGemak()
-    {
-        $type = $this->getType();
-        $pakjeGemakTypes = $this->getPakjeGemakTypes();
-
-        if (in_array($type, $pakjeGemakTypes)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if the order is same day delivery.
-     *
-     * @return bool
-     */
-    public function isSameDayDelivery()
-    {
-        $type = $this->getType();
-        if ($type == self::TYPE_SAMEDAY) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if the order is a food order.
-     *
-     * @return bool
-     */
-    public function isFood()
-    {
-        $type = $this->getType();
-        if ($type == self::TYPE_FOOD || $type == self::TYPE_COOLED_FOOD) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if this order needs verification at the door.
-     *
-     * @return bool
-     */
-    public function isIDCheck()
-    {
-        $type = $this->getType();
-        if ($type == self::TYPE_AGECHECK || $type == self::TYPE_BIRTHDAYCHECK || $type == self::TYPE_IDCHECK) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Validate the chosen extra options. If an option is invalid, it will be unset.
-     *
-     * @return $this
-     */
-    public function validateOptions()
-    {
-        if (!$this->hasOptions()) {
-            return $this;
-        }
-
-        $options = $this->getOptions();
-        if (empty($options) || !is_array($options)) {
-            $this->setOptions(false);
-
-            return $this;
-        }
-
-        foreach ($options as $option => $value) {
-            if (!$value) {
-                continue;
-            }
-
-            switch ($option) {
-                case 'only_stated_address':
-                    if ($this->getType() == 'PG'
-                        || $this->getType() == 'PGE'
-                        || $this->getType() == 'PA'
-                    ) {
-                        unset($options[$option]);
-                    }
-                    break;
-                //no default
-            }
-        }
-
-        $this->setOptions($options);
-        return $this;
-    }
-
-    /**
      * Cancels the PostNL order.
      *
      * @return $this
@@ -537,34 +223,12 @@ class TIG_PostNL_Model_Core_Order extends Mage_Core_Model_Abstract
             );
         }
 
-        /** @var TIG_PostNL_Model_Checkout_Cif $cif */
         $cif = Mage::getModel('postnl_checkout/cif');
         $cif->updateOrder($this, true);
 
         $this->setIsCanceled(true);
 
         return $this;
-    }
-
-    /**
-     * @param $type
-     *
-     * @return $this
-     */
-    public function setType($type)
-    {
-        /** @var TIG_PostNL_Helper_DeliveryOptions $deliveryOptionsHelper */
-        $deliveryOptionsHelper = Mage::app()->getConfig()->getHelperClassName('postnl/deliveryOptions');
-
-        if ($type == $deliveryOptionsHelper::IDCHECK_TYPE_AGE) {
-            return $this->setData('type', self::TYPE_AGECHECK);
-        } elseif ($type == $deliveryOptionsHelper::IDCHECK_TYPE_BIRTHDAY) {
-            return $this->setData('type', self::TYPE_BIRTHDAYCHECK);
-        } elseif ($type == $deliveryOptionsHelper::IDCHECK_TYPE_ID) {
-            return $this->setData('type', self::TYPE_IDCHECK);
-        }
-
-        return $this->setData('type', $type);
     }
 
     /**

@@ -25,28 +25,27 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                           hasWebshopId()
- * @method boolean                           hasCheckoutJsUrl()
- * @method boolean                           hasCheckoutPremiumJsUrl()
- * @method boolean                           hasEnvironment()
- * @method boolean                           hasContinueUrl()
- *
- * @method TIG_PostNL_Block_Checkout_Cart_Js setContinueUrl(string $value)
- * @method TIG_PostNL_Block_Checkout_Cart_Js setEnvironment(string $value)
- * @method TIG_PostNL_Block_Checkout_Cart_Js setCheckoutPremiumJsUrl(string $value)
- * @method TIG_PostNL_Block_Checkout_Cart_Js setCheckoutJsUrl(string $value)
  * @method TIG_PostNL_Block_Checkout_Cart_Js setWebshopId(string $value)
+ * @method boolean                           hasCheckoutJsUrl()
+ * @method TIG_PostNL_Block_Checkout_Cart_Js setCheckoutJsUrl(string $value)
+ * @method boolean                           hasCheckoutPremiumJsUrl()
+ * @method TIG_PostNL_Block_Checkout_Cart_Js setCheckoutPremiumJsUrl(string $value)
+ * @method boolean                           hasEnvironment()
+ * @method TIG_PostNL_Block_Checkout_Cart_Js setEnvironment(string $value)
+ * @method boolean                           hasContinueUrl()
+ * @method TIG_PostNL_Block_Checkout_Cart_Js setContinueUrl(string $value)
  */
 class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
 {
@@ -56,31 +55,31 @@ class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
     protected $_eventPrefix = 'postnl_checkout_cart_js';
 
     /**
-     * XML path for webshop ID setting.
+     * XML path for webshop ID setting
      */
-    const XPATH_PUBLIC_WEBSHOP_ID = 'postnl/cif/public_webshop_id';
+    const XML_PATH_PUBLIC_WEBSHOP_ID = 'postnl/cif/public_webshop_id';
 
     /**
-     * XML path of show_summary_page setting.
+     * XML path of show_summary_page setting
      */
-    const XPATH_SHOW_SUMMARY_PAGE = 'postnl/checkout/show_summary_page';
+    const XML_PATH_SHOW_SUMMARY_PAGE = 'postnl/checkout/show_summary_page';
 
     /**
-     * URLs of the primary PostNL Checkout JS files for test and live mode.
+     * URLs of the primary PostNL Checkout JS files for test and live mode
      */
-    const TEST_CHECKOUT_JS_URL_XPATH         = 'postnl/checkout/test_checkout_js_url';
-    const LIVE_CHECKOUT_JS_URL_XPATH         = 'postnl/checkout/live_checkout_js_url';
-    const TEST_CHECKOUT_PREMIUM_JS_URL_XPATH = 'postnl/checkout/test_checkout_premium_js_url';
-    const LIVE_CHECKOUT_PREMIUM_JS_URL_XPATH = 'postnl/checkout/live_checkout_premium_js_url';
+    const TEST_CHECKOUT_JS_URL         = 'https://tppwscheckout-sandbox.e-id.nl/Checkout2/Scripts/Checkout.js';
+    const LIVE_CHECKOUT_JS_URL         = 'https://mijnpakket.postnl.nl/Checkout2/Scripts/Checkout.js';
+    const TEST_CHECKOUT_PREMIUM_JS_URL = 'https://tppwscheckout-sandbox.e-id.nl/Checkout2/CheckoutPremium.js';
+    const LIVE_CHECKOUT_PREMIUM_JS_URL = 'https://mijnpakket.postnl.nl/Checkout2/CheckoutPremium.js';
 
     /**
-     * Possible PostNL Checkout environments.
+     * Possible Checkout environments
      */
     const TEST_ENVIRONMENT = 'PostNL_OP_Checkout.environment_sandbox';
     const LIVE_ENVIRONMENT = 'PostNL_OP_Checkout.environment_production';
 
     /**
-     * Gets the current store's webshop ID.
+     * Gets the current store's webshop ID
      *
      * @return string
      */
@@ -92,7 +91,7 @@ class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
 
         $storeId = Mage::app()->getStore()->getId();
 
-        $webshopId = Mage::getStoreConfig(self::XPATH_PUBLIC_WEBSHOP_ID, $storeId);
+        $webshopId = Mage::getStoreConfig(self::XML_PATH_PUBLIC_WEBSHOP_ID, $storeId);
 
         $this->setWebshopId($webshopId);
         return $webshopId;
@@ -111,16 +110,14 @@ class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
 
         $storeId = Mage::app()->getStore()->getId();
 
-        /** @var TIG_PostNL_Helper_Checkout $helper */
-        $helper = Mage::helper('postnl/checkout');
-        if ($helper->isTestMode($storeId)) {
-            $url = Mage::getStoreConfig(self::TEST_CHECKOUT_JS_URL_XPATH);
+        if (Mage::helper('postnl/checkout')->isTestMode($storeId)) {
+            $url = self::TEST_CHECKOUT_JS_URL;
 
             $this->setCheckoutJsUrl($url);
             return $url;
         }
 
-        $url = Mage::getStoreConfig(self::LIVE_CHECKOUT_JS_URL_XPATH);
+        $url = self::LIVE_CHECKOUT_JS_URL;
 
         $this->setCheckoutJsUrl($url);
         return $url;
@@ -139,16 +136,14 @@ class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
 
         $storeId = Mage::app()->getStore()->getId();
 
-        /** @var TIG_PostNL_Helper_Checkout $helper */
-        $helper = Mage::helper('postnl/checkout');
-        if ($helper->isTestMode($storeId)) {
-            $url = Mage::getStoreConfig(self::TEST_CHECKOUT_PREMIUM_JS_URL_XPATH);
+        if (Mage::helper('postnl/checkout')->isTestMode($storeId)) {
+            $url = self::TEST_CHECKOUT_PREMIUM_JS_URL;
 
             $this->setCheckoutPremiumJsUrl($url);
             return $url;
         }
 
-        $url = Mage::getStoreConfig(self::LIVE_CHECKOUT_PREMIUM_JS_URL_XPATH);
+        $url = self::LIVE_CHECKOUT_PREMIUM_JS_URL;
 
         $this->setCheckoutPremiumJsUrl($url);
         return $url;
@@ -167,9 +162,7 @@ class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
 
         $storeId = Mage::app()->getStore()->getId();
 
-        /** @var TIG_PostNL_Helper_Checkout $helper */
-        $helper = Mage::helper('postnl/checkout');
-        if ($helper->isTestMode($storeId)) {
+        if (Mage::helper('postnl/checkout')->isTestMode($storeId)) {
             $environment = self::TEST_ENVIRONMENT;
 
             $this->setEnvironment($environment);
@@ -194,7 +187,7 @@ class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
         }
 
         $storeId = Mage::app()->getStore()->getId();
-        $showConfirmPage = Mage::getStoreConfigFlag(self::XPATH_SHOW_SUMMARY_PAGE, $storeId);
+        $showConfirmPage = Mage::getStoreConfigFlag(self::XML_PATH_SHOW_SUMMARY_PAGE, $storeId);
         if ($showConfirmPage) {
             $url = $this->getUrl('postnl/checkout/summary');
 
@@ -215,13 +208,9 @@ class TIG_PostNL_Block_Checkout_Cart_Js extends TIG_PostNL_Block_Core_Template
      */
     protected function _toHtml()
     {
-        /** @var Mage_Checkout_Model_Session $session */
-        $session = Mage::getSingleton('checkout/session');
-        $quote = $session->getQuote();
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
 
-        /** @var TIG_PostNL_Helper_Checkout $helper */
-        $helper = Mage::helper('postnl/checkout');
-        $canUseCheckout = $helper->canUsePostnlCheckout($quote);
+        $canUseCheckout = Mage::helper('postnl/checkout')->canUsePostnlCheckout($quote);
         if (!$canUseCheckout) {
             return '';
         }

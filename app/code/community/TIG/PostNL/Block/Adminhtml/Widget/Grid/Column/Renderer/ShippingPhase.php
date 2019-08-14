@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_ShippingPhase
@@ -48,27 +48,17 @@ class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_ShippingPhase
      */
     public function render(Varien_Object $row)
     {
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        /** @noinspection PhpUndefinedMethodInspection */
-        $values = $row->getData($this->getColumn()->getIndex());
+        $value = $row->getData($this->getColumn()->getIndex());
 
-        if (empty($values)) {
+        if (empty($value)) {
             return '';
         }
 
-        /** @var TIG_PostNL_Helper_Cif $helper */
-        $helper         = Mage::helper('postnl/cif');
-        $values         = explode(',', $values);
-        $shippingPhases = $helper->getShippingPhases();
-
-        $labels = array();
-        foreach ($values as $value) {
-            if (isset($shippingPhases[$value])) {
-                $labels[] = $helper->__($shippingPhases[$value]);
-            }
+        $shippingPhases = Mage::helper('postnl/cif')->getShippingPhases();
+        if (array_key_exists($value, $shippingPhases)) {
+            $value = $shippingPhases[$value];
         }
-        $labels = implode(',', $labels);
 
-        return $labels;
+        return Mage::helper('postnl')->__($value);
     }
 }

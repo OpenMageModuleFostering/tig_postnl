@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                  hasQuote()
@@ -44,8 +44,6 @@
  * @method TIG_PostNL_Model_DeliveryOptions_Service setShippingDuration(int $duration)
  * @method boolean                                  hasConfirmDate()
  * @method TIG_PostNL_Model_DeliveryOptions_Service setConfirmDate(string $date)
- * @method TIG_PostNL_Model_DeliveryOptions_Service setIdcheckType(string $value)
- * @method TIG_PostNL_Model_DeliveryOptions_Service setIdcheckExpirationDate(string $value)
  */
 class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
 {
@@ -55,10 +53,9 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
     const ADDRESS_TYPE_PAKJEGEMAK = 'pakje_gemak';
 
     /**
-     * Xpaths for shipping settings.
+     * Xpath for shipping duration setting.
      */
-    const XPATH_SHIPPING_DURATION = 'postnl/cif_labels_and_confirming/shipping_duration';
-    const XPATH_SHIPPING_DAYS     = 'postnl/cif_labels_and_confirming/shipping_days';
+    const XPATH_SHIPPING_DURATION = 'postnl/delivery_options/shipping_duration';
 
     /**
      * Gets a PostNL Order. If none is set; load one.
@@ -75,7 +72,6 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
 
         $quote = $this->getQuote();
 
-        /** @var TIG_PostNL_Model_Core_Order $postnlOrder */
         $postnlOrder = Mage::getModel('postnl_core/order');
         $postnlOrder->load($quote->getId(), 'quote_id');
 
@@ -96,9 +92,7 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
             return $quote;
         }
 
-        /** @var Mage_Checkout_Model_Session $session */
-        $session = Mage::getSingleton('checkout/session');
-        $quote = $session->getQuote();
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
 
         $this->setQuote($quote);
         return $quote;
@@ -118,9 +112,7 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
         }
 
         $shippingDuration = Mage::getStoreConfig(self::XPATH_SHIPPING_DURATION);
-        /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-        $helper = Mage::helper('postnl/deliveryOptions');
-        if ($deliveryDay == 1 && !$helper->canUseSundaySorting()) {
+        if ($deliveryDay == 1 && !Mage::helper('postnl/deliveryOptions')->canUseSundaySorting()) {
             $shippingDuration++;
         }
 
@@ -129,26 +121,28 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
     }
 
     /**
-     * @param StdClass[] $timeframes
-     * @param string     $destinationCountry
+     * Calculate the confirm date for a specified delivery date.
      *
-     * @param null       $deliveryDate
+     * @param $deliveryDate
      *
-     * @return false|StdClass[]
+     * @return string
      */
-    public function filterTimeframes($timeframes, $destinationCountry = 'NL', $deliveryDate = null)
+    public function getConfirmDate($deliveryDate)
     {
-        /**
-         * If the time frames are not an array, something has gone wrong.
-         */
-        if (!is_array($timeframes)) {
-            return false;
+        if ($this->hasConfirmDate()) {
+            return $this->_getData('confirm_date');
         }
 
-        /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-        $helper = Mage::helper('postnl/deliveryOptions');
+        $deliveryDate = strtotime($deliveryDate);
+        $deliveryDay = date('N');
 
-        return $helper->filterTimeFrames($timeframes, Mage::app()->getStore()->getId(), $destinationCountry, $deliveryDate);
+        $shippingDuration = $this->getShippingDuration($deliveryDay);
+        $confirmDate = strtotime("-{$shippingDuration} days", $deliveryDate);
+
+        $confirmDate = date('Y-m-d', $confirmDate);
+
+        $this->setConfirmDate($confirmDate);
+        return $confirmDate;
     }
 
     /**
@@ -194,104 +188,37 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
     }
 
     /**
-     * Save the specified delivery option.
-     *
-     * @param array $data
+     * @param $data
      *
      * @return $this
      */
     public function saveDeliveryOption($data)
     {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-
-        /** @var TIG_PostNL_Helper_Date $helper */
-        $dateHelper = Mage::helper('postnl/date');
-
-        if ($data['type'] == 'Sameday') {
-            $dateHelper->setPostnlDeliveryDelay(0);
-        }
-
         $quote = $this->getQuote();
 
-        $amsterdamTimeZone = new DateTimeZone('Europe/Amsterdam');
-        $utcTimeZone = new DateTimeZone('UTC');
-
-        $deliveryDate = DateTime::createFromFormat('d-m-Y', $data['date'], $amsterdamTimeZone);
-        $deliveryDate->setTimezone($utcTimeZone);
-
-        $isPGBE = false;
-        if ($data['type'] == 'PG' && $quote->getShippingAddress() !== null && $quote->getShippingAddress()->getCountryId() == 'BE') {
-            $isPGBE = true;
-        }
-
-        if ($data['type'] == 'Food' || $data['type'] == 'Cooledfood') {
-            $confirmDate = $deliveryDate;
-        } else {
-            $deliveryDateClone = clone $deliveryDate;
-            $confirmDate = $dateHelper->getShippingDateFromDeliveryDate($deliveryDateClone, $quote->getStoreId(), $isPGBE);
-        }
+        $confirmDate = $this->getConfirmDate($data['date']);
 
         /**
          * @var TIG_PostNL_Model_Core_Order $postnlOrder
          */
         $postnlOrder = $this->getPostnlOrder();
         $postnlOrder->setQuoteId($quote->getId())
-                    ->setOrderId(null)
                     ->setIsActive(true)
                     ->setIsPakjeGemak(false)
                     ->setIsPakketautomaat(false)
                     ->setProductCode(false)
                     ->setMobilePhoneNumber(false, true)
+                    ->setType($data['type'])
                     ->setShipmentCosts($data['costs'])
-                    ->setDeliveryDate($deliveryDate->format('Y-m-d H:i:s'))
-                    ->setConfirmDate($confirmDate->format('Y-m-d H:i:s'))
-                    ->setExpectedDeliveryTimeStart(false)
-                    ->setExpectedDeliveryTimeEnd(false);
-
-        /** @var TIG_PostNL_Helper_DeliveryOptions $deliveryOptionsHelper */
-        $deliveryOptionsHelper = Mage::app()->getConfig()->getHelperClassName('postnl/deliveryOptions');
-
-        /**
-         * Age, Birthday and ID don't have deliveryoptions, so default to their value.
-         */
-        $newType = false;
-        if ($helper->quoteIsAgeCheck($quote)) {
-            $newType = $deliveryOptionsHelper::IDCHECK_TYPE_AGE;
-        } elseif ($helper->quoteIsBirthdayCheck($quote)) {
-            $newType = $deliveryOptionsHelper::IDCHECK_TYPE_BIRTHDAY;
-        } elseif ($helper->quoteIsIDCheck($quote)) {
-            $newType = $deliveryOptionsHelper::IDCHECK_TYPE_ID;
-        }
-
-        if ($newType) {
-            $postnlOrder->setType($newType);
-        } else {
-            $postnlOrder->setType($data['type']);
-        }
+                    ->setDeliveryDate($data['date'])
+                    ->setConfirmDate($confirmDate);
 
         if ($data['type'] == 'PA') {
             $postnlOrder->setIsPakketautomaat(true)
                         ->setProductCode(3553)
                         ->setMobilePhoneNumber($data['number']);
         } elseif ($data['type'] == 'PG' || $data['type'] == 'PGE') {
-            $postnlOrder->setIsPakjeGemak(true)
-                        ->setPgLocationCode($data['locationCode'])
-                        ->setPgRetailNetworkId($data['retailNetworkId']);
-        }
-
-        /**
-         * Set the expected delivery timeframe if available.
-         */
-        if (isset($data['from'])) {
-            $from = DateTime::createFromFormat('H:i:s', $data['from'], $amsterdamTimeZone);
-            $from->setTimezone($utcTimeZone);
-            $postnlOrder->setExpectedDeliveryTimeStart($from->format('H:i:s'));
-        }
-        if (isset($data['to'])) {
-            $to = DateTime::createFromFormat('H:i:s', $data['to'], $amsterdamTimeZone);
-            $to->setTimezone($utcTimeZone);
-            $postnlOrder->setExpectedDeliveryTimeEnd($to->format('H:i:s'));
+            $postnlOrder->setIsPakjeGemak(true);
         }
 
         /**
@@ -302,14 +229,13 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
         foreach ($quote->getAllAddresses() as $quoteAddress) {
             if ($quoteAddress->getAddressType() == self::ADDRESS_TYPE_PAKJEGEMAK) {
                 $quoteAddress->isDeleted(true);
-                $quote->removeAddress($quoteAddress->getId());
             }
         }
 
         /**
          * Add an optional PakjeGemak address.
          */
-        if (isset($data['address'])) {
+        if (array_key_exists('address', $data)) {
             $address = $data['address'];
 
             $street = array(
@@ -326,9 +252,7 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
                 $phoneNumber = $address['telephone'];
             }
 
-            /** @var Mage_Sales_Model_Quote_Address $pakjeGemakAddress */
             $pakjeGemakAddress = Mage::getModel('sales/quote_address');
-            /** @noinspection PhpParamsInspection */
             $pakjeGemakAddress->setAddressType(self::ADDRESS_TYPE_PAKJEGEMAK)
                               ->setCity($address['city'])
                               ->setCountryId($address['countryCode'])
@@ -339,10 +263,10 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
                               ->setTelephone($phoneNumber)
                               ->setStreet($street);
 
-            $quote->addAddress($pakjeGemakAddress);
+            $quote->addAddress($pakjeGemakAddress)
+                  ->save();
         }
 
-        $quote->save();
         $postnlOrder->save();
 
         return $this;

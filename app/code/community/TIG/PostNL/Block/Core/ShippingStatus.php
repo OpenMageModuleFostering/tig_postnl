@@ -25,24 +25,16 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
- *
- * @method boolean hasPostnlShipment()
- * @method boolean hasShipment()
- *
- * @method TIG_PostNL_Block_Core_ShippingStatus setPostnlShipment(TIG_PostNL_Model_Core_Shipment $value)
- * @method TIG_PostNL_Block_Core_ShippingStatus setShipment(Mage_Sales_Model_Order_Shipment $value)
- *
- * @method Mage_Sales_Model_Order_Shipment getShipment()
  */
 class TIG_PostNL_Block_Core_ShippingStatus extends TIG_PostNL_Block_Core_Template
 {
@@ -52,39 +44,19 @@ class TIG_PostNL_Block_Core_ShippingStatus extends TIG_PostNL_Block_Core_Templat
     protected $_eventPrefix = 'postnl_core_shippingstatus';
 
     /**
-     * @return TIG_PostNL_Model_Core_Shipment
-     */
-    public function getPostnlShipment()
-    {
-        if ($this->hasPostnlShipment()) {
-            return $this->_getData('postnl_shipment');
-        }
-
-        if (!$this->hasShipment()) {
-            return false;
-        }
-
-        $shipment = $this->getShipment();
-        /** @var TIG_PostNL_Model_Core_Shipment $postnlShipment */
-        $postnlShipment = Mage::getModel('postnl_core/shipment')->load($shipment->getId(), 'shipment_id');
-
-        $this->setPostnlShipment($postnlShipment);
-        return $postnlShipment;
-    }
-
-    /**
      * Checks if a given shipment has been confirmed with PostNL
      *
      * @param Mage_Sales_Model_Order_Shipment
      *
      * @return boolean
      */
-    public function isConfirmed()
+    public function isConfirmed($shipment)
     {
-        $postnlShipment = $this->getPostnlShipment();
-        if ($postnlShipment
-            && $postnlShipment->getConfirmStatus() == $postnlShipment::CONFIRM_STATUS_CONFIRMED
-        ) {
+        /**
+         * @var TIG_PostNL_Model_Core_Shipment $postnlShipment
+         */
+        $postnlShipment = Mage::getModel('postnl_core/shipment')->load($shipment->getId(), 'shipment_id');
+        if ($postnlShipment->getConfirmStatus() == $postnlShipment::CONFIRM_STATUS_CONFIRMED) {
             return true;
         }
 
@@ -98,17 +70,11 @@ class TIG_PostNL_Block_Core_ShippingStatus extends TIG_PostNL_Block_Core_Templat
      *
      * @return string
      */
-    public function getConfirmedAt()
+    public function getConfirmedAt($shipment)
     {
-        $postnlShipment = $this->getPostnlShipment();
+        $postnlShipment = Mage::getModel('postnl_core/shipment')->load($shipment->getId(), 'shipment_id');
 
-        if (!$postnlShipment) {
-            return false;
-        }
-
-        /** @var Mage_Core_Helper_Data $helper */
-        $helper = Mage::helper('core');
-        $confirmedAt = $helper->formatDate($postnlShipment->getConfirmedAt(), 'medium', false);
+        $confirmedAt = Mage::helper('core')->formatDate($postnlShipment->getConfirmedAt(), 'medium', false);
 
         return $confirmedAt;
     }
@@ -120,13 +86,9 @@ class TIG_PostNL_Block_Core_ShippingStatus extends TIG_PostNL_Block_Core_Templat
      *
      * @return boolean
      */
-    public function getTrackingUrl()
+    public function getTrackingUrl($shipment)
     {
-        $postnlShipment = $this->getPostnlShipment();
-
-        if (!$postnlShipment) {
-            return '';
-        }
+        $postnlShipment = Mage::getModel('postnl_core/shipment')->load($shipment->getId(), 'shipment_id');
 
         $barcodeUrl = $postnlShipment->getBarcodeUrl(true);
 
@@ -138,35 +100,13 @@ class TIG_PostNL_Block_Core_ShippingStatus extends TIG_PostNL_Block_Core_Templat
     }
 
     /**
-     * @return array|TIG_PostNL_Model_Core_Resource_Shipment_Collection
-     */
-    public function getPostnlShipments()
-    {
-        /**
-         * @var Mage_Sales_Model_Resource_Order_Shipment_Collection $shipments
-         */
-        $shipments = Mage::registry('current_order')->getShipmentsCollection();
-        if (!$shipments) {
-            return array();
-        }
-
-        $shipmentsIds = $shipments->getColumnValues('entity_id');
-        $postnlShipments = Mage::getResourceModel('postnl_core/shipment_collection')
-                               ->addFieldToFilter('shipment_id', array('in' => $shipmentsIds));
-
-        return $postnlShipments;
-    }
-
-    /**
      * Check if the PostNL module is enabled. Otherwise return an empty string.
      *
      * @return string | Mage_Core_Block_Template::_toHtml()
      */
     protected function _toHtml()
     {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        if (!$helper->isEnabled()) {
+        if (!Mage::helper('postnl')->isEnabled()) {
             return '';
         }
 

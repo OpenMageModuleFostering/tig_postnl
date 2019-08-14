@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Adminhtml_System_Config_Form_Field_SupportTab
@@ -45,16 +45,10 @@ class TIG_PostNL_Block_Adminhtml_System_Config_Form_Field_SupportTab
     protected $_eventPrefix = 'postnl_adminhtml_system_config_form_field_supporttab';
 
     /**
-     * Xpaths to URLs used in the support tab.
+     * Css files loaded for PostNL's system > config section
      */
-    const POSTNL_REGISTER_URL_XPATH     = 'postnl/general/postnl_register_url';
-    const KNOWLEDGEBASE_URL_XPATH       = 'postnl/general/knowledgebase_url';
-    const NEW_TICKET_URL_XPATH          = 'postnl/general/new_ticket_url';
-    const INSTALLATION_MANUAL_URL_XPATH = 'postnl/general/installation_manual_url';
-    const USER_GUIDE_URL_XPATH          = 'postnl/general/user_guide_url';
-    const KB_URL_XPATH                  = 'postnl/general/kb_url';
-    const POSTNL_DOCUMENTATION_URL      = 'postnl/general/postnl_documentation_url';
-    const CIT_SERVICEDESK_EMAIL         = 'postnl/general/cit_servicedesk_email';
+    const SYSTEM_CONFIG_EDIT_CSS_FILE = 'css/TIG/PostNL/system_config_edit_postnl.css';
+    const MAGENTO_16_CSS_FILE         = 'css/TIG/PostNL/system_config_edit_postnl_magento16.css';
 
     /**
      * Template file used
@@ -64,184 +58,44 @@ class TIG_PostNL_Block_Adminhtml_System_Config_Form_Field_SupportTab
     protected $_template = 'TIG/PostNL/system/config/form/field/support_tab.phtml';
 
     /**
-     * @return string
-     */
-    public function getVersion()
-    {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        $version =  $helper->getModuleVersion();
-
-        return $version;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStability()
-    {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        $version = $helper->getModuleStability();
-
-        return $version;
-    }
-
-    /**
-     * @return array|Mage_Core_Model_Config_Element|string|false
-     */
-    public function getCompatibility()
-    {
-        $postnlConfig = Mage::app()->getConfig()->getNode('tig/compatibility/postnl');
-
-        if ($postnlConfig) {
-            $postnlConfig = $postnlConfig->asArray();
-        }
-
-        return $postnlConfig;
-    }
-
-    /**
-     * @param string $extensionKey
+     * Add a new css file to the head. We couldn't do this from layout.xml, because it would have loaded
+     * for all System > Config pages, rather than just PostNL's section.
      *
-     * @return string
-     */
-    public function getCompatibleExtensionLabel($extensionKey)
-    {
-        switch ($extensionKey) {
-            case 'Idev_OneStepCheckout':
-                $label = "Idev's OneStepCheckout";
-                break;
-            case 'Bpost_ShippingManager':
-                $label = "Bpost Shipping Manager";
-                break;
-            case 'GoMage_Checkout':
-                $label = "GoMage's Checkout";
-                break;
-            case 'Picqer_PostNL':
-                $label = "Picqer's PostNL add-on";
-                break;
-            default:
-                $label = $extensionKey;
-                break;
-        }
-
-        return $label;
-    }
-
-    /**
-     * @param $versions
+     * @return Mage_Adminhtml_Block_Abstract::_prepareLayout()
      *
-     * @return string
+     * @see Mage_Adminhtml_Block_Abstract::_prepareLayout()
      */
-    public function formatCompatibleVersion($versions)
+    protected function _prepareLayout()
     {
-        $versionString = '';
-        $versions = explode(',', $versions);
+        $this->getLayout()
+             ->getBlock('head')
+             ->addCss(self::SYSTEM_CONFIG_EDIT_CSS_FILE);
 
-        $count = count($versions);
-        foreach (array_values($versions) as $index => $version) {
-            if ($index > 0 && $index < $count) {
-                $versionString .= ', ';
-            } elseif ($index > 0) {
-                $versionString .= ' & ';
+        /**
+         * For Magento 1.6 and 1.11 we need to add another css file.
+         */
+        $helper = Mage::helper('postnl');
+        $isEnterprise = $helper->isEnterprise();
+
+        /**
+         * Get the minimum version requirement for the current Magento edition.
+         */
+            if($isEnterprise) {
+                $minimumVersion = '1.12.0.0';
+            } else {
+                $minimumVersion = '1.7.0.0';
             }
 
-            $versionString .= 'v' . $version;
+        /**
+         * Check if the current version is below the minimum version requirement.
+         */
+        $isBelowMinimumVersion = version_compare(Mage::getVersion(), $minimumVersion, '<');
+        if ($isBelowMinimumVersion) {
+            $this->getLayout()
+                 ->getBlock('head')
+                 ->addCss(self::MAGENTO_16_CSS_FILE);
         }
 
-        return $versionString;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPostnlRegisterUrl()
-    {
-        $url = Mage::getStoreConfig(self::POSTNL_REGISTER_URL_XPATH, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getKnowledgebaseUrl()
-    {
-        $url = Mage::getStoreConfig(self::KNOWLEDGEBASE_URL_XPATH, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getNewTicketUrl()
-    {
-        $url = Mage::getStoreConfig(self::NEW_TICKET_URL_XPATH, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInstallationManualUrl()
-    {
-        $url = Mage::getStoreConfig(self::INSTALLATION_MANUAL_URL_XPATH, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserGuideUrl()
-    {
-        $url = Mage::getStoreConfig(self::USER_GUIDE_URL_XPATH, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPostnlDocumentationUrl()
-    {
-        $url = Mage::getStoreConfig(self::POSTNL_DOCUMENTATION_URL, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCitServicedeskEmail()
-    {
-        $url = Mage::getStoreConfig(self::CIT_SERVICEDESK_EMAIL, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getChangelogUrl()
-    {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        $url = $helper->getChangelogUrl();
-
-        return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getKbUrl()
-    {
-        $url = Mage::getStoreConfig(self::KB_URL_XPATH, Mage_Core_Model_App::ADMIN_STORE_ID);
-
-        return $url;
+        return parent::_prepareLayout();
     }
 }

@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Helper_Parcelware extends TIG_PostNL_Helper_Data
@@ -41,17 +41,17 @@ class TIG_PostNL_Helper_Parcelware extends TIG_PostNL_Helper_Data
     /**
      * XML path to auto confirm setting
      */
-    const XPATH_AUTO_CONFIRM = 'postnl/parcelware_export/auto_confirm';
+    const XML_PATH_AUTO_CONFIRM = 'postnl/parcelware_export/auto_confirm';
 
     /**
      * XML path to the active/inactive setting
      */
-    const XPATH_ACTIVE = 'postnl/parcelware_export/active';
+    const XML_PATH_ACTIVE = 'postnl/parcelware_export/active';
 
     /**
      * XML path to the customer code setting.
      */
-    const XPATH_CUSTOMER_CODE = 'postnl/cif/customer_code';
+    const XML_PATH_CUSTOMER_CODE = 'postnl/cif/customer_code';
 
     /**
      * AutoConfirmEnabled flag
@@ -75,7 +75,7 @@ class TIG_PostNL_Helper_Parcelware extends TIG_PostNL_Helper_Data
      *
      * @param boolean $autoConfirmEnabled
      *
-     * @return $this
+     * @return TIG_PostNL_Helper_Parcelware
      */
     public function setAutoConfirmEnabled($autoConfirmEnabled)
     {
@@ -100,7 +100,7 @@ class TIG_PostNL_Helper_Parcelware extends TIG_PostNL_Helper_Data
 
         $type = substr($barcode, 0, 2);
 
-        $customerCode = (string) Mage::getStoreConfig(self::XPATH_CUSTOMER_CODE, $storeId);
+        $customerCode = (string) Mage::getStoreConfig(self::XML_PATH_CUSTOMER_CODE, $storeId);
 
         $number = substr($barcode, 2  + strlen($customerCode));
 
@@ -115,10 +115,6 @@ class TIG_PostNL_Helper_Parcelware extends TIG_PostNL_Helper_Data
 
     /**
      * Check to see if Parcelware export functionality is enabled.
-     *
-     * @param int|null $storeId
-     *
-     * @return boolean
      */
     public function isParcelwareExportEnabled($storeId = null)
     {
@@ -126,7 +122,7 @@ class TIG_PostNL_Helper_Parcelware extends TIG_PostNL_Helper_Data
             $storeId = Mage::app()->getStore()->getId();
         }
 
-        $active = Mage::getStoreConfigFlag(self::XPATH_ACTIVE, $storeId);
+        $active = Mage::getStoreConfigFlag(self::XML_PATH_ACTIVE, $storeId);
 
         return $active;
     }
@@ -142,7 +138,7 @@ class TIG_PostNL_Helper_Parcelware extends TIG_PostNL_Helper_Data
             return $this->getAutoConfirmEnabled();
         }
 
-        $autoConfirmEnabled = Mage::getStoreConfigFlag(self::XPATH_AUTO_CONFIRM, Mage_Core_Model_App::ADMIN_STORE_ID);
+        $autoConfirmEnabled = Mage::getStoreConfigFlag(self::XML_PATH_AUTO_CONFIRM, Mage_Core_Model_App::ADMIN_STORE_ID);
 
         $this->setAutoConfirmEnabled($autoConfirmEnabled);
         return $autoConfirmEnabled;

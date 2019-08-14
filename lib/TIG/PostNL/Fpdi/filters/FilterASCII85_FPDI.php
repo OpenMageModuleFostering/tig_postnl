@@ -22,8 +22,8 @@ require_once('FilterASCII85.php');
 class FilterASCII85_FPDI extends FilterASCII85 {
 
     var $fpdi;
-
-    function __construct(&$fpdi) {
+    
+    function FilterASCII85_FPDI(&$fpdi) {
         $this->fpdi =& $fpdi;
     }
 

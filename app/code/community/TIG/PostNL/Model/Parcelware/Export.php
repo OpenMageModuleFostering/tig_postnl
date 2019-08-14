@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method TIG_PostNL_Model_Parcelware_Export setIsGlobal(boolean $value)
@@ -44,14 +44,9 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
     /**
      * XML paths to Parcelware references
      */
-    const XPATH_CONTRACT_REF_NR = 'postnl/parcelware_export/contract_ref_nr';
-    const XPATH_CONTRACT_NAME   = 'postnl/parcelware_export/contract_name';
-    const XPATH_SENDER_REF_NR   = 'postnl/parcelware_export/sender_ref_nr';
-
-    /**
-     * The separator used for the Parcelware export.
-     */
-    const CSV_SEPARATOR = ';';
+    const XML_PATH_CONTRACT_REF_NR = 'postnl/parcelware_export/contract_ref_nr';
+    const XML_PATH_CONTRACT_NAME   = 'postnl/parcelware_export/contract_name';
+    const XML_PATH_SENDER_REF_NR   = 'postnl/parcelware_export/sender_ref_nr';
 
     /**
      * @var Mage_Core_Model_Resource_Transaction|void
@@ -70,7 +65,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
         }
 
         /**
-         * Prepare a transaction save object. We're going to edit all the postnl shipments that we're going to export,
+         * Prepare a transaction save object. We're going to edit all the postbl shipments that we're going to export,
          * however we want all of them to be saved at the same time AFTER the export has been generated.
          */
         $transactionSave = Mage::getModel('core/resource_transaction');
@@ -121,7 +116,6 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
         /**
          * Prepare to create a new export file.
          */
-        /** @var Varien_Io_File $io */
         $io = Mage::getModel('varien/io_file');
 
         /**
@@ -143,16 +137,16 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
         /**
          * Write the CSV headers and then each row of data.
          */
-        $io->streamWrite(implode(self::CSV_SEPARATOR, $csvHeaders));
+        $io->streamWrite(implode(',', $csvHeaders));
         foreach ($content as $item) {
             /**
-             * Remove any comma's and semicolon as these will break Parcelware's import.
+             * Remove any comma's as these will break Parcelware's import.
              */
             foreach ($item as &$value) {
-                $value = str_replace(array(',', self::CSV_SEPARATOR), '', $value);
+                $value = str_replace(',', '', $value);
             }
 
-            $io->streamWrite(PHP_EOL . implode(self::CSV_SEPARATOR, $item));
+            $io->streamWrite(PHP_EOL . implode(',', $item));
         }
 
         /**
@@ -181,7 +175,6 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
      */
     public function getCsvData($postnlShipments)
     {
-        /** @var TIG_PostNL_Helper_Parcelware $helper */
         $helper = Mage::helper('postnl/parcelware');
         $autoConfirmEnabled = $helper->isAutoConfirmEnabled();
 
@@ -212,8 +205,8 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
             $transactionSave->addObject($postnlShipment);
 
             /**
-             * If this is a multi-colli shipment we need to treat each parcel as a separate shipment and therefore, as a
-             * separate row in the csv export file.
+             * If this is a multi-colli shipment we need to treat each parcel as a seperate shipment and therefore, as a
+             * seperate row in the csv export file.
              */
             $parcelCount = $postnlShipment->getParcelCount();
             if ($parcelCount > 1) {
@@ -251,7 +244,6 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
      */
     protected function _getShipmentData($postnlShipment, $parcelCount = false, $count = false)
     {
-        /** @var TIG_PostNL_Helper_Parcelware $helper */
         $helper = Mage::helper('postnl/parcelware');
 
         /**
@@ -267,7 +259,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
         $addressData    = $this->_getAddressData($shipment);
         $addressData['SMSnr'] = $this->_getMobilePhoneNumber($postnlShipment);
 
-        $pakjeGemakData = $this->_getPakjeGemakAddressData($postnlShipment);
+        $pakjeGemakData = $this->_getPakjeGemakAddressData($postnlShipment, $shipment);
         $referenceData  = $this->_getReferenceData();
         $extraCover     = array($postnlShipment->getExtraCoverAmount());
         $productOptions = $this->_getProductOptions($postnlShipment);
@@ -275,9 +267,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
         /**
          * Get the current GMT timestamp as a point of reference
          */
-        /** @var Mage_Core_Model_Date $dateModel */
-        $dateModel = Mage::getModel('core/date');
-        $now = $dateModel->gmtTimestamp();
+        $now = Mage::getModel('core/date')->gmtTimestamp();
 
         /**
          * Get the confirm and delivery dates for this shipment
@@ -363,7 +353,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
     protected function _getAddressData($shipment)
     {
         $address = $shipment->getShippingAddress();
-        $streetData = $this->_getStreetData($address);
+        $streetData = $this->_getStreetData($address, false);
 
         $data = array(
             'CompanyName'   => $address->getCompany(),
@@ -372,7 +362,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
             'Street'        => $streetData['streetname'],
             'HouseNr'       => $streetData['housenumber'],
             'HouseNrExt'    => $streetData['housenumberExtension'],
-            'Zipcode'       => str_replace(' ', '', $address->getPostcode()),
+            'Zipcode'       => $address->getPostcode(),
             'City'          => $address->getCity(),
             'Countrycode'   => $address->getCountryId(),
             'CustomerEmail' => $address->getEmail(),
@@ -409,7 +399,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
             return $data;
         }
 
-        $streetData = $this->_getStreetData($pakjeGemakAddress);
+        $streetData = $this->_getStreetData($pakjeGemakAddress, false);
 
         $companyName = $pakjeGemakAddress->getCompany();
         if (!$companyName) { //PostNL Checkout stores the company name in the lastname field
@@ -421,7 +411,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
             'PG_Street'      => $streetData['streetname'],
             'PG_HouseNr'     => $streetData['housenumber'],
             'PG_HouseNrExt'  => $streetData['housenumberExtension'],
-            'PG_Zipcode'     => str_replace(' ', '', $pakjeGemakAddress->getPostcode()),
+            'PG_Zipcode'     => $pakjeGemakAddress->getPostcode(),
             'PG_City'        => $pakjeGemakAddress->getCity(),
             'PG_Countrycode' => $pakjeGemakAddress->getCountryId(),
         );
@@ -488,9 +478,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
     {
         $productCode = $postnlShipment->getProductCode();
 
-        /** @var TIG_PostNL_Helper_Cif $helper */
-        $helper = Mage::helper('postnl/cif');
-        $combiLabelProductCodes = $helper->getCombiLabelProductCodes();
+        $combiLabelProductCodes = Mage::helper('postnl/cif')->getCombiLabelProductCodes();
         if (in_array($productCode, $combiLabelProductCodes)) {
             $productCode = array_search($productCode, $combiLabelProductCodes);
         }
@@ -562,11 +550,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
          * Add information about the contents of the shipment
          */
         $itemCount = 0;
-        /** @noinspection PhpParamsInspection */
         $items = $this->_sortCustomsItems($shipment->getAllItems());
-
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
 
         /**
          * @var Mage_Sales_Model_Order_Shipment_Item $item
@@ -582,7 +566,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
             /**
              * Calculate the item's weight in kg
              */
-            $itemWeight = $helper->standardizeWeight(
+            $itemWeight = Mage::helper('postnl/cif')->standardizeWeight(
                 $item->getWeight(),
                 $this->getStoreId()
             );
@@ -610,7 +594,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
     }
 
     /**
-     * Gets the numeric shipment type for this shipment.
+     * gets the numeric shipment type for this shipment.
      *
      * @param TIG_PostnL_Model_Core_Shipment $postnlShipment
      *
@@ -619,9 +603,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
     protected function _getParcelwareShipmentType(TIG_PostnL_Model_Core_Shipment $postnlShipment)
     {
         $shipmentType = $postnlShipment->getGlobalpackShipmentType();
-        /** @var TIG_PostNL_Helper_Cif $helper */
-        $helper = Mage::helper('postnl/cif');
-        $numericShipmentTypes = $helper->getNumericShipmentTypes();
+        $numericShipmentTypes = Mage::helper('postnl/cif')->getNumericShipmentTypes();
 
         if (array_key_exists($shipmentType, $numericShipmentTypes)) {
             $shipmentType = $numericShipmentTypes[$shipmentType];
@@ -745,7 +727,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
      */
     protected function _getContractReference()
     {
-        $contractReference = Mage::getStoreConfig(self::XPATH_CONTRACT_REF_NR, $this->getStoreId());
+        $contractReference = Mage::getStoreConfig(self::XML_PATH_CONTRACT_REF_NR, $this->getStoreId());
 
         return $contractReference;
     }
@@ -757,7 +739,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
      */
     protected function _getContractName()
     {
-        $contractName = Mage::getStoreConfig(self::XPATH_CONTRACT_NAME, $this->getStoreId());
+        $contractName = Mage::getStoreConfig(self::XML_PATH_CONTRACT_NAME, $this->getStoreId());
 
         return $contractName;
     }
@@ -769,7 +751,7 @@ class TIG_PostNL_Model_Parcelware_Export extends TIG_PostNL_Model_Core_Cif
      */
     protected function _getSenderReference()
     {
-        $senderReference = Mage::getStoreConfig(self::XPATH_SENDER_REF_NR, $this->getStoreId());
+        $senderReference = Mage::getStoreConfig(self::XML_PATH_SENDER_REF_NR, $this->getStoreId());
 
         return $senderReference;
     }

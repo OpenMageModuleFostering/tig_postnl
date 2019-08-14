@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
@@ -105,7 +105,6 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
      */
     public function getProfileAccessAction()
     {
-        /** @var TIG_PostNL_Helper_Mijnpakket $helper */
         $helper = Mage::helper('postnl/mijnpakket');
 
         /**
@@ -142,7 +141,7 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
              */
             $result = $this->_formResultArray($profileData);
         } catch (Exception $e) {
-            $helper->logException($e);
+            Mage::helper('postnl/mijnpakket')->logException($e);
             $helper->log(
                 $helper->__('Exception: ' . $e->getMessage())
             );
@@ -169,9 +168,7 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
         /**
          * Return the result as JSON.
          */
-        /** @var Mage_Core_Helper_Data $coreHelper */
-        $coreHelper = Mage::helper('core');
-        $json = $coreHelper->jsonEncode($result);
+        $json = Mage::helper('core')->jsonEncode($result);
         $this->getResponse()
              ->setHeader('Content-type', 'application/x-json')
              ->setBody($json);
@@ -187,7 +184,6 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
     protected function _getProfileData()
     {
         $checkoutSession = $this->getCheckoutSession();
-        /** @noinspection PhpUndefinedMethodInspection */
         $savedData = $checkoutSession->getPostnlMijnpakketData();
 
         /**
@@ -206,7 +202,6 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
         /**
          * Otherwise we need to get data from CIF using the access token.
          */
-        /** @var TIG_PostNL_Model_Mijnpakket_Cif $cif */
         $cif = Mage::getModel('postnl_mijnpakket/cif');
         $response = $cif->getProfileAccess($token);
 
@@ -214,9 +209,7 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
          * Parse the data into an array that Magento's checkout can use.
          */
         $profile = $response->Profiel;
-        /** @var TIG_PostNL_Model_Mijnpakket_Service $serviceModel */
-        $serviceModel = Mage::getModel('postnl_mijnpakket/service');
-        $profileData = $serviceModel->parseProfileData($profile);
+        $profileData = Mage::getModel('postnl_mijnpakket/service')->parseProfileData($profile);
 
         return $profileData;
     }
@@ -232,7 +225,6 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
      */
     protected function _formResultArray($billingData)
     {
-        /** @var TIG_PostNL_Helper_Mijnpakket $helper */
         $helper = Mage::helper('postnl/mijnpakket');
         $helper->log(
             'MijnPakket data received: '
@@ -253,22 +245,17 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
                 . var_export($result, true)
             );
 
-            if (isset($result['message'])) {
-                $message = $result['message'];
+            if (isset($result['message'][0])) {
+                $message = $result['message'][0];
             } else {
                 $message = $this->__('An unknown error has occurred.');
             }
-
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->getCheckoutSession()->setPostnlMijnpakketData(false);
-
             throw new TIG_PostNL_Exception($message);
         }
 
         /**
          * Store the data in the customer's checkout session.
          */
-        /** @noinspection PhpUndefinedMethodInspection */
         $this->getCheckoutSession()->setPostnlMijnpakketData($billingData);
 
         $result['origData'] = $billingData;
@@ -344,7 +331,6 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
         $onepage = $this->getOnepage();
         $quote   = $onepage->getQuote();
 
-        /** @var TIG_PostNL_Helper_Mijnpakket $helper */
         $helper = Mage::helper('postnl/mijnpakket');
 
         if (!$quote->hasItems()) {
@@ -356,7 +342,6 @@ class TIG_PostNL_MijnpakketController extends Mage_Core_Controller_Front_Action
             return true;
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
         if ($quote->getHasError()) {
             $helper->log(
                $helper->__(

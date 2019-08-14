@@ -25,19 +25,16 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
- *
- * @method boolean hasQuote()
- * @method TIG_PostNL_Block_Checkout_Summary setQuote(Mage_Sales_Model_Quote $quote)
  */
 class TIG_PostNL_Block_Checkout_Summary extends Mage_Sales_Block_Items_Abstract
 {
@@ -86,7 +83,6 @@ class TIG_PostNL_Block_Checkout_Summary extends Mage_Sales_Block_Items_Abstract
 
         $addresses = $quote->getAddressesCollection();
 
-        /** @var Mage_Sales_Model_Quote_Address $address */
         foreach ($addresses as $address) {
             if ($address->getAddressType() == self::PAKJE_GEMAK_ADDRESS_TYPE) {
                 $address = Mage::getModel('sales/quote_address')->load($address->getId());
@@ -104,10 +100,8 @@ class TIG_PostNL_Block_Checkout_Summary extends Mage_Sales_Block_Items_Abstract
      */
     public function getShippingDescription()
     {
-        /** @var Mage_Sales_Model_Quote_Address $address */
         $address = $this->getQuote()->getShippingAddress();
 
-        /** @noinspection PhpUndefinedMethodInspection */
         if ($address->hasShippingDescription()) {
             return $address->getShippingDescription();
         }
@@ -119,7 +113,6 @@ class TIG_PostNL_Block_Checkout_Summary extends Mage_Sales_Block_Items_Abstract
         }
 
         $shippingDescription = '';
-        /** @var Mage_Sales_Model_Quote_Address_Rate $rate */
         foreach ($address->getAllShippingRates() as $rate) {
             if ($rate->getCode() == $method) {
                 $shippingDescription = $rate->getCarrierTitle() . ' - ' . $rate->getMethodTitle();
@@ -148,9 +141,7 @@ class TIG_PostNL_Block_Checkout_Summary extends Mage_Sales_Block_Items_Abstract
             return false;
         }
 
-        /** @var TIG_PostNL_Helper_Checkout $helper */
-        $helper = Mage::helper('postnl/checkout');
-        $optionConversionArray = $helper->getOptionConversionArray();
+        $optionConversionArray = Mage::helper('postnl/checkout')->getOptionConversionArray();
         if (!array_key_exists($methodCode, $optionConversionArray)) {
             return $optionValue;
         }

@@ -25,906 +25,499 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_Core_System_Config_Source_AllProductOptions
-    extends TIG_PostNL_Model_Core_System_Config_Source_ProductOptions_Abstract
 {
     /**
-     * @var array
+     * XML path to supported options configuration setting
      */
-    protected $_options = array(
-        '3085' => array(
-            'value'             => '3085',
-            'label'             => 'Standard shipment',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3086' => array(
-            'value'             => '3086',
-            'label'             => 'COD',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'isSameDay'         => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3091' => array(
-            'value'             => '3091',
-            'label'             => 'COD + Extra cover',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'isSameDay'         => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3093' => array(
-            'value'             => '3093',
-            'label'             => 'COD + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'isSameDay'         => true,
-            'countryLimitation'=> 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3097' => array(
-            'value'             => '3097',
-            'label'             => 'COD + Extra cover + Return when not home',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'isSameDay'         => true,
-            'countryLimitation'=> 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3087' => array(
-            'value'             => '3087',
-            'label'             => 'Extra Cover',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3094' => array(
-            'value'            => '3094',
-            'label'            => 'Extra cover + Return when not home',
-            'isAvond'          => true,
-            'isSunday'         => true,
-            'isExtraCover'     => true,
-            'isCod'            => false,
-            'isSameDay'         => true,
-            'countryLimitation'=> 'NL',
-            'group'            => 'standard_options',
-        ),
-        '3189' => array(
-            'value'             => '3189',
-            'label'             => 'Signature on delivery',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3089' => array(
-            'value'             => '3089',
-            'label'             => 'Signature on delivery + Delivery to stated address only',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => true,
-            'isBelgiumOnly'     => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3389' => array(
-            'value'             => '3389',
-            'label'             => 'Signature on delivery + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3096' => array(
-            'value'             => '3096',
-            'label'             => 'Signature on delivery + Deliver to stated address only + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => true,
-            'isBelgiumOnly'     => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3090' => array(
-            'value'             => '3090',
-            'label'             => 'Delivery to neighbour + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3385' => array(
-            'value'             => '3385',
-            'label'             => 'Deliver to stated address only',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3390' => array(
-            'value'             => '3390',
-            'label'             => 'Deliver to stated address only + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'standard_options',
-        ),
-        '3535' => array(
-            'value'             => '3535',
-            'label'             => 'Post Office + COD',
-            'isExtraCover'      => false,
-            'isPge'             => false,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '3545' => array(
-            'value'             => '3545',
-            'label'             => 'Post Office + COD + Notification',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'isPge'             => true,
-            'isCod'             => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '3536' => array(
-            'value'             => '3536',
-            'label'             => 'Post Office + COD + Extra Cover',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'isPge'             => true,
-            'isCod'             => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '3546' => array(
-            'value'             => '3546',
-            'label'             => 'Post Office + COD + Extra Cover + Notification',
-            'isExtraCover'      => true,
-            'isPge'             => true,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '3534' => array(
-            'value'             => '3534',
-            'label'             => 'Post Office + Extra Cover',
-            'isExtraCover'      => true,
-            'isPge'             => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '3544' => array(
-            'value'             => '3544',
-            'label'             => 'Post Office + Extra Cover + Notification',
-            'isExtraCover'      => true,
-            'isPge'             => true,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '3533' => array(
-            'value'             => '3533',
-            'label'             => 'Post Office + Signature on Delivery',
-            'isExtraCover'      => false,
-            'isPge'             => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '3543' => array(
-            'value'             => '3543',
-            'label'             => 'Post Office + Signature on Delivery + Notification',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'isPge'             => true,
-            'isCod'             => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options',
-        ),
-        '4932' => array(
-            'value'             => '4932',
-            'label'             => '4932 - Post Office Belgium + Extra Cover',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'isPge'             => false,
-            'isCod'             => false,
-            'isBelgiumOnly'     => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_be_options',
-        ),
-        '4878' => array(
-            'value'             => '4878',
-            'label'             => '4878 - Post Office Belgium + Extra Cover',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'isPge'             => false,
-            'isCod'             => false,
-            'isBelgiumOnly'     => true,
-            'countryLimitation' => 'BE',
-            'group'             => 'pakjegemak_be_options',
-        ),
-        '4880' => array(
-            'value'             => '4880',
-            'label'             => '4880 - Post Office Belgium',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'isPge'             => false,
-            'isCod'             => false,
-            'isBelgiumOnly'     => true,
-            'countryLimitation' => 'BE',
-            'group'             => 'pakjegemak_be_options',
-        ),
-        '4952' => array(
-            'value'             => '4952',
-            'label'             => 'EU Pack Special Consumer (incl. signature)',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'countryLimitation' => false,
-            'group'             => 'eu_options',
-        ),
-        /**
-         * This option has been removed since v1.1.4.
-         */
-        /*'4955' => array(
-            'value' => '4955',
-            'label' => $helper->__('EU Pack Standard (Belgium only, no signature)'),
-            'isBelgiumOnly' => true,
-        ),*/
-        /**
-         * These are not currently implemented.
-         */
-        /*'4950' => array(
-            'value' => '4950',
-            'label' => $helper->__('EU Pack Special (B2B)'),
-        ),
-        '4954' => array(
-            'value' => '4954',
-            'label' => $helper->__('EU Pack Special COD (Belgium and Luxembourg only)'),
-        ),*/
-        '4945' => array(
-            'value'             => '4945',
-            'label'             => 'GlobalPack',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'countryLimitation' => false,
-            'group'             => 'global_options',
-        ),
-        '3553' => array(
-            'value'             => '3553',
-            'label'             => 'Parcel Dispenser',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakketautomaat_options',
-        ),
-        '2828' => array(
-            'value'             => '2828',
-            'label'             => 'Letter Box Parcel',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'buspakje_options',
-        ),
-        '2928' => array(
-            'value'             => '2928',
-            'label'             => 'Letter Box Parcel Extra',
-            'isExtraCover'      => false,
-            'isSunday'          => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'buspakje_options',
-        ),
-        '4970' => array(
-            'value'             => '4970',
-            'label'             => 'Belgium Deliver to stated address only + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'statedAddressOnly' => true,
-            'countryLimitation' => 'BE',
-            'group'             => 'standard_options',
-        ),
-        '4971' => array(
-            'value'             => '4971',
-            'label'             => 'Belgium Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'BE',
-            'group'             => 'standard_options',
-        ),
-        '4972' => array(
-            'value'             => '4972',
-            'label'             => 'Belgium Signature on delivery + Deliver to stated address only + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'statedAddressOnly' => true,
-            'countryLimitation' => 'BE',
-            'group'             => 'standard_options',
-        ),
-        '4973' => array(
-            'value'             => '4973',
-            'label'             => 'Belgium Signature on delivery + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'BE',
-            'group'             => 'standard_options',
-        ),
-        '4974' => array(
-            'value'             => '4974',
-            'label'             => 'Belgium COD + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'BE',
-            'group'             => 'standard_options',
-        ),
-        '4975' => array(
-            'value'             => '4975',
-            'label'             => 'Belgium Extra cover (EUR 500)+ Return when not home + Deliver to stated address only',
-            'isExtraCover'      => true,
-            'extraCover'        => 500,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => false,
-            'statedAddressOnly' => true,
-            'countryLimitation' => 'BE',
-            'group'             => 'standard_options',
-        ),
-        '4976' => array(
-            'value'             => '4976',
-            'label'             => 'Belgium COD + Extra cover (EUR 500) + Return when not home',
-            'isExtraCover'      => true,
-            'extraCover'        => 500,
-            'isAvond'           => false,
-            'isSunday'          => false,
-            'isCod'             => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'BE',
-            'group'             => 'standard_options',
-        ),
-        '3083' => array(
-            'value'             => '3083',
-            'label'             => 'Dry & Groceries',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'food_options',
-        ),
-        '3084' => array(
-            'value'             => '3084',
-            'label'             => 'Cooled Products',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => true,
-            'countryLimitation' => 'NL',
-            'group'             => 'cooled_options',
-        ),
-        /** New Codes for Age, ID and Birthday check */
-        '3438' => array(
-            'value'             => '3438',
-            'label'             => 'Parcel with Agecheck 18+',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'agecheck_options'
-        ),
-        '3443' => array(
-            'value'             => '3443',
-            'label'             => 'Parcel with Extra Cover + Agecheck 18+',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'agecheck_options'
-        ),
-        '3446' => array(
-            'value'             => '3446',
-            'label'             => 'Parcel with Extra Cover + Agecheck 18+ Return when not home',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'agecheck_options'
-        ),
-        '3449' => array(
-            'value'             => '3449',
-            'label'             => 'Parcel with Agecheck 18+ Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'agecheck_options'
-        ),
-        '3437' => array(
-            'value'             => '3437',
-            'label'             => 'Parcel with Agecheck 18+ Neighbors',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'agecheck_options'
-        ),
-        '3571' => array(
-            'value'             => '3571',
-            'label'             => 'Post Office + Agecheck 18+',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3574' => array(
-            'value'             => '3574',
-            'label'             => 'Post Office + Notification + Agecheck 18+',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'isPge'             => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3581' => array(
-            'value'             => '3581',
-            'label'             => 'Post Office + Extra Cover + Agecheck 18+',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3584' => array(
-            'value'             => '3584',
-            'label'             => 'Post Office + Extra Cover + Notification + Agecheck 18+',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'isPge'             => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3442' => array(
-            'value'             => '3442',
-            'label'             => 'Parcel with ID check (based on ID-number)',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'id_check_options'
-        ),
-        '3445' => array(
-            'value'             => '3445',
-            'label'             => 'Parcel with Extra Cover + ID check',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'id_check_options'
-        ),
-        '3448' => array(
-            'value'             => '3448',
-            'label'             => 'Parcel with Extra Cover + ID check + Return when not home',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'id_check_options'
-        ),
-        '3451' => array(
-            'value'             => '3451',
-            'label'             => 'Parcel with ID check + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'id_check_options'
-        ),
-        '3573' => array(
-            'value'             => '3573',
-            'label'             => 'Post Office + ID Check',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isPge'             => false,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3576' => array(
-            'value'             => '3576',
-            'label'             => 'Post Office + Notification + ID Check',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isPge'             => true,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3583' => array(
-            'value'             => '3583',
-            'label'             => 'Post Office + Extra Cover + ID Check',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isPge'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3586' => array(
-            'value'             => '3586',
-            'label'             => 'Post Office + Extra Cover + Notification + ID Check',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isPge'             => true,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3440' => array(
-            'value'             => '3440',
-            'label'             => 'Parcel with Birthday Check',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'birthday_check_options'
-        ),
-        '3444' => array(
-            'value'             => '3444',
-            'label'             => 'Parcel with Extra Cover + Birthday Check',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'birthday_check_options'
-        ),
-        '3447' => array(
-            'value'             => '3447',
-            'label'             => 'Parcel with Extra Cover + Birthday Check + Return when not home',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'birthday_check_options'
-        ),
-        '3450' => array(
-            'value'             => '3450',
-            'label'             => 'Parcel with Birthday Check + Return when not home',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'birthday_check_options'
-        ),
-        '3572' => array(
-            'value'             => '3572',
-            'label'             => 'Post Office + Birthday Check',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'isPge'             => false,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3575' => array(
-            'value'             => '3575',
-            'label'             => 'Post Office + Notification + Birthday Check',
-            'isExtraCover'      => false,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'isPge'             => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3582' => array(
-            'value'             => '3582',
-            'label'             => 'Post Office + Extra Cover + Birthday Check',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'isPge'             => false,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-        '3585' => array(
-            'value'             => '3585',
-            'label'             => 'Post Office + Extra Cover + Notification + Birthday Check',
-            'isExtraCover'      => true,
-            'isAvond'           => true,
-            'isSunday'          => true,
-            'isCod'             => false,
-            'isSameDay'         => true,
-            'isPge'             => true,
-            'statedAddressOnly' => false,
-            'countryLimitation' => 'NL',
-            'group'             => 'pakjegemak_options'
-        ),
-    );
+    const XML_PATH_SUPPORTED_PRODUCT_OPTIONS = 'postnl/cif_product_options/supported_product_options';
 
     /**
-     * @var array
-     */
-    protected $_groups = array(
-        'standard_options'       => 'Domestic options',
-        'pakjegemak_options'     => 'Post Office options',
-        'pakjegemak_be_options'  => 'Post Office Belgium options',
-        'eu_options'             => 'EU options',
-        'global_options'         => 'Global options',
-        'pakketautomaat_options' => 'Parcel Dispenser options',
-        'buspakje_options'       => 'Letter Box Parcel options',
-        'sunday_options'         => 'Sunday options',
-        'food_options'           => 'Food Delivery Options',
-        'cooled_options'         => 'Cooled Delivery Options',
-        'agecheck_options'       => 'Parcel with Age check Options',
-        'id_check_options'       => 'Parcel with ID check Options',
-        'birthday_check_options' => 'Parcel with Birthday Check Options',
-    );
-
-    /**
-     * Gets all possible options.
+     * Returns an option array for all possible PostNL product options
      *
-     * @param array $flags
-     * @param bool  $asFlatArray
-     * @param bool  $checkAvailable
+     * @param boolean $markDefault Flag that determines whether default options will be marked as such.
      *
      * @return array
-     */
-    public function getOptions($flags = array(), $asFlatArray = false, $checkAvailable = false)
-    {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        $canUseDutchProducts = Mage::helper('postnl/deliveryOptions')->canUseDutchProducts();
-        if (!isset($flags['countryLimitation']) && !$canUseDutchProducts) {
-            $domesticCountry = $helper->getDomesticCountry();
-            $flags['countryLimitation'] =  array(
-                $domesticCountry,
-                false,
-            );
-        }
-
-        $options = parent::getOptions($flags, $asFlatArray, $checkAvailable);
-
-        /**
-         * Add the EU EPS BE only option if it's allowed and if either EPS options are requested or if all groups are
-         * requested.
-         */
-        if ($helper->canUseEpsBEOnlyOption()
-            && (!isset($flags['group'])
-                || $flags['group'] == 'eu_options'
-            )
-            && (!isset($flags['isExtraCover'])
-                || $flags['isExtraCover'] == false
-            )
-        ) {
-            if (!$asFlatArray) {
-                $options['4955'] = array(
-                    'value'         => '4955',
-                    'label'         => $helper->__('EU Pack Standard (Belgium only, no signature)'),
-                    'isBelgiumOnly' => true,
-                    'isExtraCover'  => false,
-                );
-            } else {
-                $options['4955'] = $helper->__('EU Pack Standard (Belgium only, no signature)');
-            }
-
-        }
-
-        if (
-            $helper->canUsePakjegemakBeNotInsured()
-            && (!isset($flags['isBelgiumOnly'])
-                || $flags['isBelgiumOnly'] == true
-            )
-            && (!isset($flags['isExtraCover'])
-                || $flags['isExtraCover'] == false
-            )
-            && (!isset($flags['countryLimitation'])
-                || $flags['countryLimitation'] == 'NL'
-            )
-        ) {
-            if (!$asFlatArray) {
-                $options[] = array(
-                    'value'             => '4936',
-                    'label'             => $helper->__('4936 - Post Office Belgium'),
-                    'isBelgiumOnly'     => true,
-                    'isExtraCover'      => false,
-                    'isAvond'           => false,
-                    'isSunday'          => false,
-                    'isCod'             => false,
-                    'statedAddressOnly' => false,
-                    'countryLimitation' => 'NL',
-                    'group'             => 'pakjegemak_be_options'
-                );
-            } else {
-                $options['4936'] = $helper->__('4936 - Post Office Belgium');
-            }
-        }
-
-        ksort($options);
-
-        return $options;
-    }
-
-    /**
-     * Returns an option array for all possible PostNL product options.
      *
-     * @return array
+     * @todo implement COD
      */
-    public function toOptionArray()
+    public function toOptionArray($markDefault = true)
     {
-        $options = $this->getGroupedOptions();
-
-        /** @var TIG_PostNL_Helper_Data $helper */
         $helper = Mage::helper('postnl');
+        $availableOptions = array(
+            'standard_options' => array(
+                'label' => $helper->__('Domestic options'),
+                'value' => array(
+                    '3085' => array(
+                        'value' => '3085',
+                        'label' => $helper->__('Standard shipment'),
+                    ),
+                    /**
+                     * These are not currently implemented
+                     *
+                     * @todo implement these options
+                     */
+                    /*'3086' => array(
+                        'value'   => '3086',
+                        'label'   => $helper->__('COD'),
+                        'isAvond' => true,
+                    ),
+                    '3091' => array(
+                        'value'   => '3091',
+                        'label'   => $helper->__('COD + Extra cover'),
+                        'isAvond' => true,
+                    ),
+                    '3093' => array(
+                        'value'   => '3093',
+                        'label'   => $helper->__('COD + Return when not home'),
+                        'isAvond' => true,
+                    ),
+                    '3097' => array(
+                        'value'   => '3097',
+                        'label'   => $helper->__('COD + Extra cover + Return when not home'),
+                        'isAvond' => true,
+                    ),*/
+                    '3087' => array(
+                        'value'        => '3087',
+                        'label'        => $helper->__('Extra Cover'),
+                        'isExtraCover' => true,
+                        'isAvond'      => true,
+                    ),
+                    '3094' => array(
+                        'value'        => '3094',
+                        'label'        => $helper->__('Extra cover + Return when not home'),
+                        'isExtraCover' => true,
+                        'isAvond'      => true,
+                    ),
+                    '3189' => array(
+                        'value' => '3189',
+                        'label' => $helper->__('Signature on delivery'),
+                    ),
+                    '3089' => array(
+                        'value'   => '3089',
+                        'label'   => $helper->__('Signature on delivery + Delivery to stated address only'),
+                        'isAvond' => true,
+                    ),
+                    '3389' => array(
+                        'value' => '3389',
+                        'label' => $helper->__('Signature on delivery + Return when not home'),
+                    ),
+                    '3096' => array(
+                        'value'   => '3096',
+                        'label'   => $helper->__(
+                                       'Signature on delivery + Deliver to stated address only + Return when not home'
+                                    ),
+                        'isAvond' => true,
+                    ),
+                    '3090' => array(
+                        'value'   => '3090',
+                        'label'   => $helper->__('Delivery to neighbour + Return when not home'),
+                        'isAvond' => true,
+                    ),
+                    '3385' => array(
+                        'value'   => '3385',
+                        'label'   => $helper->__('Deliver to stated address only'),
+                        'isAvond' => true,
+                    ),
+                    '3390' => array(
+                        'value'   => '3390',
+                        'label'   => $helper->__('Deliver to stated address only + Return when not home'),
+                        'isAvond' => true,
+                    ),
+                ),
+            ),
+            'pakjegemak_options' => array(
+                'label' => $helper->__('Post Office options'),
+                'value' => array(
+                    /**
+                     * These are not currently implemented
+                     *
+                     * @todo implement these options
+                     */
+                    /*'3535' => array(
+                        'value' => '3535',
+                        'label' => $helper->__('Post Office + COD'),
+                    ),
+                    '3545' => array(
+                        'value' => '3545',
+                        'label' => $helper->__('Post Office + COD + Notification'),
+                        'isPge' => true,
+                    ),
+                    '3536' => array(
+                        'value' => '3536',
+                        'label' => $helper->__('Post Office + COD + Extra Cover'),
+                        'isPge' => true,
+                    ),
+                    '3546' => array(
+                        'value' => '3546',
+                        'label' => $helper->__('Post Office + COD + Extra Cover + Notification'),
+                        'isPge' => true,
+                    ),*/
+                    '3534' => array(
+                        'value'        => '3534',
+                        'label'        => $helper->__('Post Office + Extra Cover'),
+                        'isExtraCover' => true,
+                    ),
+                    '3544' => array(
+                        'value'        => '3544',
+                        'label'        => $helper->__('Post Office + Extra Cover + Notification'),
+                        'isExtraCover' => true,
+                        'isPge'        => true,
+                    ),
+                    '3533' => array(
+                        'value' => '3533',
+                        'label' => $helper->__('Post Office + Signature on Delivery'),
+                    ),
+                    '3543' => array(
+                        'value' => '3543',
+                        'label' => $helper->__('Post Office + Signature on Delivery + Notification'),
+                        'isPge' => true,
+                    ),
+                ),
+            ),
+            'eu_options' => array(
+                'label' => $helper->__('EU options'),
+                'value' => array(
+                    '4952' => array(
+                        'value' => '4952',
+                        'label' => $helper->__('EU Pack Special Consumer (incl. signature)'),
+                    ),
+                    /**
+                     * This option has been removed since v1.1.4.
+                     *
+                     * @deprecated v1.1.2
+                     */
+                    /*'4955' => array(
+                        'value' => '4955',
+                        'label' => $helper->__('EU Pack Standard (Belgium only, no signature)'),
+                        'isBelgiumOnly' => true,
+                    ),*/
+                    /**
+                     * These are not currently implemented
+                     *
+                     * @todo implement these options
+                     */
+                    /*'4950' => array(
+                        'value' => '4950',
+                        'label' => $helper->__('EU Pack Special (B2B)'),
+                    ),
+                    '4954' => array(
+                        'value' => '4954',
+                        'label' => $helper->__('EU Pack Special COD (Belgium and Luxembourg only)'),
+                    ),*/
+                ),
+            ),
+            'global_options' => array(
+                'label' => $helper->__('Global options'),
+                'value' => array(
+                    '4945' => array(
+                        'value'        => '4945',
+                        'label'        => $helper->__('GlobalPack'),
+                        'isExtraCover' => true,
+                        'extraCover'   => 200,
+                    ),
+                ),
+            ),
+            'pakketautomaat' => array(
+                'label' => $helper->__('Parcel Dispenser options'),
+                'value' => array(
+                    '3553' => array(
+                        'value'        => '3553',
+                        'label'        => $helper->__('Parcel Dispenser'),
+                    ),
+                ),
+            ),
+        );
+
         if ($helper->canUseEpsBEOnlyOption()) {
-            $options['eu_options']['value']['4955'] = array(
+            $availableOptions['eu_options']['value']['4955'] = array(
                 'value'         => '4955',
                 'label'         => $helper->__('EU Pack Standard (Belgium only, no signature)'),
                 'isBelgiumOnly' => true,
-                'isExtraCover'  => false,
             );
         }
 
-        return $options;
+        return $availableOptions;
     }
 
     /**
-     * Get a flat array of all options.
+     * Get a list of available options. This is a filtered/modified version of the array supplied by toOptionArray();
+     *
+     * @param boolean     $withDefault        Determines whether or not a 'default' option is prepended to the array
+     * @param bool        $withExtraCover
+     * @param boolean|int $storeId
+     * @param boolean     $codesOnly          Flag that dtermines whether to only return the product codes and not the
+     *                                        labels
+     * @param boolean     $flat               FLag that dtermines whether to return a flat 'code => label' array
+     * @param boolean     $markDefault        Flag that determines whether default options will be marked as such.
+     * @param boolean     $addDeliveryOptions If set to true, additional options will be added for evening delivery and
+     *                                        early pickup shipment types.
      *
      * @return array
      */
-    public function toArray()
-    {
-        return $this->getOptions(array(), true);
+    public function getAvailableOptions($withDefault = false,
+        $withExtraCover     = true,
+        $storeId            = false,
+        $codesOnly          = false,
+        $flat               = false,
+        $markDefault        = true,
+        $addDeliveryOptions = false
+    ) {
+        if ($storeId === false) {
+            $storeId = Mage_Core_Model_App::ADMIN_STORE_ID;
+        }
+
+        $helper = Mage::helper('postnl');
+        $canUseEpsBEOnly = $helper->canUseEpsBEOnlyOption();
+
+        $options = $this->toOptionArray($markDefault);
+
+        /**
+         * Get a list of all possible options
+         */
+        $availableOptions = array();
+
+        /**
+         * prepend the 'default' option
+         */
+        if ($withDefault === true) {
+            $availableOptions[] =  array(
+                'value' => 'default',
+                'label' => $helper->__('Use default'),
+            );
+        }
+
+        /**
+         * Get the list of supported product options from the shop's configuration
+         */
+        $supportedOptions = Mage::getStoreConfig(self::XML_PATH_SUPPORTED_PRODUCT_OPTIONS, $storeId);
+        $supportedOptionsArray = explode(',', $supportedOptions);
+        if ($canUseEpsBEOnly) {
+            $supportedOptionsArray[] = '4955';
+        }
+
+        /**
+         * Initialize empty arrays for each supported shipment type. These will be filled with available options.
+         */
+        $availableStandardOptions   = array();
+        $availableAvondOptions      = array();
+        $availablePakjeGemakOptions = array();
+        $availablePgeOptions        = array();
+        $availableEuOptions         = array();
+        $availableGlobalOptions     = array();
+
+        /**
+         * Check each standard option to see if it's supprted
+         */
+        foreach ($options['standard_options']['value'] as $option) {
+            if (!in_array($option['value'], $supportedOptionsArray)) {
+                continue;
+            }
+
+            if (isset($option['isExtraCover']) && $withExtraCover !== true) {
+                continue;
+            }
+
+            if ($codesOnly === true) {
+                $availableOptions[] = $option['value'];
+                continue;
+            }
+
+            if ($flat === true) {
+                $availableOptions[$option['value']] = $option['label'];
+                continue;
+            }
+
+            if (isset($option['isAvond']) && $option['isAvond']) {
+                $availableAvondOptions[] = $option;
+            }
+
+            $availableStandardOptions[] = $option;
+        }
+
+        /**
+         * Check each pakje gemak option to see if it's supprted
+         */
+        foreach ($options['pakjegemak_options']['value'] as $option) {
+            if (!in_array($option['value'], $supportedOptionsArray)) {
+                continue;
+            }
+
+            if (isset($option['isExtraCover']) && $withExtraCover !== true) {
+                continue;
+            }
+
+            if ($codesOnly === true) {
+                $availableOptions[] = $option['value'];
+                continue;
+            }
+
+            if ($flat === true) {
+                $availableOptions[$option['value']] = $option['label'];
+                continue;
+            }
+
+            if (isset($option['isPge']) && $option['isPge']) {
+                $availablePgeOptions[] = $option;
+            }
+
+            $availablePakjeGemakOptions[] = $option;
+        }
+
+        /**
+         * Check each eu option to see if it's supprted
+         */
+        foreach ($options['eu_options']['value'] as $option) {
+            if (!in_array($option['value'], $supportedOptionsArray)) {
+                continue;
+            }
+
+            if (isset($option['isExtraCover']) && $withExtraCover !== true) {
+                continue;
+            }
+
+            if ($codesOnly === true) {
+                $availableOptions[] = $option['value'];
+                continue;
+            }
+
+            if ($flat === true) {
+                $availableOptions[$option['value']] = $option['label'];
+                continue;
+            }
+
+            $availableEuOptions[] = $option;
+        }
+
+        /**
+         * Check each global option to see if it's supprted
+         */
+        if ($helper->isGlobalAllowed()) {
+            foreach ($options['global_options']['value'] as $option) {
+                if (!in_array($option['value'], $supportedOptionsArray)) {
+                    continue;
+                }
+
+                if (isset($option['isExtraCover']) && $withExtraCover !== true) {
+                    continue;
+                }
+
+                if ($codesOnly === true) {
+                    $availableOptions[] = $option['value'];
+                    continue;
+                }
+
+                if ($flat === true) {
+                    $availableOptions[$option['value']] = $option['label'];
+                    continue;
+                }
+
+                $availableGlobalOptions[] = $option;
+            }
+        }
+
+        /**
+         * Check each pakketautomaat option to see if it's supprted
+         */
+        $availablePakketautomaatOptions = array();
+        if ($helper->isGlobalAllowed()) {
+            foreach ($options['pakketautomaat']['value'] as $option) {
+                if (!in_array($option['value'], $supportedOptionsArray)) {
+                    continue;
+                }
+
+                if (isset($option['isExtraCover']) && $withExtraCover !== true) {
+                    continue;
+                }
+
+                if ($codesOnly === true) {
+                    $availableOptions[] = $option['value'];
+                    continue;
+                }
+
+                if ($flat === true) {
+                    $availableOptions[$option['value']] = $option['label'];
+                    continue;
+                }
+
+                $availablePakketautomaatOptions[] = $option;
+            }
+        }
+
+        /**
+         * If we only need the codes, we can return the $availableOptions array. Otherwise, we need to order and merge the
+         * other arrays
+         */
+        if ($codesOnly === true || $flat === true) {
+            return $availableOptions;
+        }
+
+        /**
+         * group all available options
+         */
+        if (!empty($availableStandardOptions)) {
+            $availableOptions['standard_options'] = array(
+                'label' => $helper->__('Standard options'),
+                'value' => $availableStandardOptions,
+            );
+        }
+
+        if (!empty($availablePakjeGemakOptions)) {
+            $availableOptions['pakjegemak_options'] = array(
+                'label' => $helper->__('Post Office options'),
+                'value' => $availablePakjeGemakOptions,
+            );
+        }
+
+        if (!empty($availableEuOptions)) {
+            $availableOptions['eu_options'] = array(
+                'label' => $helper->__('EU options'),
+                'value' => $availableEuOptions,
+            );
+        }
+
+        if (!empty($availableGlobalOptions)) {
+            $availableOptions['global_options'] = array(
+                'label' => $helper->__('Global options'),
+                'value' => $availableGlobalOptions,
+            );
+        }
+
+        if (!empty($availablePakketautomaatOptions)) {
+            $availableOptions['pakketautomaat_option'] = array(
+                'label' => $helper->__('Parcel Dispenser options'),
+                'value' => $availablePakketautomaatOptions,
+            );
+        }
+
+        if ($addDeliveryOptions) {
+            $availableOptions['avond_options'] = array(
+                'label' => $helper->__('Evening Delivery options'),
+                'value' => $availableAvondOptions,
+            );
+
+            $availableOptions['pge_options'] = array(
+                'label' => $helper->__('Early Pickup options'),
+                'value' => $availablePgeOptions,
+            );
+        }
+
+        return $availableOptions;
     }
 
     /**
-     * Get the list of available product options that have extra cover.
+     * Get the list of available product options that have extra cover
      *
      * @param bool $valuesOnly
      *
@@ -932,6 +525,88 @@ class TIG_PostNL_Model_Core_System_Config_Source_AllProductOptions
      */
     public function getExtraCoverOptions($valuesOnly = false)
     {
-        return $this->getOptions(array('isExtraCover' => true), $valuesOnly, true);
+        /**
+         * Get all available options
+         */
+        $availableOptions = $this->getAvailableOptions(false, true);
+
+        /**
+         * Loop through each optGroup and then each option to see if any of them have the isExtraCover flag.
+         * Add these to the array of extra cover options.
+         */
+        $extraCoverOptions = array();
+        foreach ($availableOptions as $optionGroup) {
+            foreach ($optionGroup['value'] as $option) {
+                /**
+                 * Add the whole option (value, label and flags)
+                 */
+                if (isset($option['isExtraCover'])
+                    && $option['isExtraCover']
+                    && $valuesOnly !== true
+                ) {
+                    $extraCoverOptions[] = $option;
+                    continue;
+                }
+
+                /**
+                 * Only add the value
+                 */
+                if (isset($option['isExtraCover'])
+                    && $option['isExtraCover']
+                    && $valuesOnly === true
+                ) {
+                    $extraCoverOptions[] = $option['value'];
+                    continue;
+                }
+
+                continue;
+            }
+        }
+
+        return $extraCoverOptions;
+    }
+
+    /**
+     * Marks the default values in the option array
+     *
+     * @param array &$options
+     *
+     * @return array
+     */
+    protected function _markDefault(&$options)
+    {
+        $helper = Mage::helper('postnl/cif');
+
+        /**
+         * Get an array of all default options
+         */
+        $defaultOptions = $helper->getDefaultProductOptions();
+
+
+        /**
+         * Mark each default option as default if it is present in the available options array
+         */
+        $defaultText = ' ' . $helper->__('(default)');
+        if (isset($options['standard_options']['value'][$defaultOptions['dutch']])) {
+            $options['standard_options']['value'][$defaultOptions['dutch']]['label'] .= $defaultText;
+        }
+
+        if (isset($options['pakjegemak_options']['value'][$defaultOptions['eu']])) {
+            $options['pakjegemak_options']['value'][$defaultOptions['pakjegemak']]['label'] .= $defaultText;
+        }
+
+        if (isset($options['eu_options']['value'][$defaultOptions['eu']])) {
+            $options['eu_options']['value'][$defaultOptions['eu']]['label'] .= $defaultText;
+        }
+
+        if (isset($options['global_options']['value'][$defaultOptions['global']])) {
+            $options['global_options']['value'][$defaultOptions['global']]['label'] .= $defaultText;
+        }
+
+        if (isset($options['pakketautomaat_options']['value'][$defaultOptions['pakketautomaat']])) {
+            $options['pakketautomaat_options']['value'][$defaultOptions['pakketautomaat']]['label'] .= $defaultText;
+        }
+
+        return $options;
     }
 }

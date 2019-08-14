@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
@@ -45,18 +45,18 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
     /**
      * XML paths for security keys
      */
-    const XPATH_EXTENSIONCONTROL_UNIQUE_KEY  = 'postnl/general/unique_key';
-    const XPATH_EXTENSIONCONTROL_PRIVATE_KEY = 'postnl/general/private_key';
+    const XML_PATH_EXTENSIONCONTROL_UNIQUE_KEY  = 'postnl/general/unique_key';
+    const XML_PATH_EXTENSIONCONTROL_PRIVATE_KEY = 'postnl/general/private_key';
 
     /**
      * XML path to updateStatistics on/off switch
      */
-    const XPATH_SEND_STATISTICS = 'postnl/advanced/send_statistics';
+    const XML_PATH_SEND_STATISTICS = 'postnl/advanced/send_statistics';
 
     /**
      * XML path to receiveUpdates on/off switch
      */
-    const XPATH_RECEIVE_UPDATES = 'postnl/advanced/receive_updates';
+    const XML_PATH_RECEIVE_UPDATES = 'postnl/advanced/receive_updates';
 
     /**
      * Log filename to log all webservices exceptions
@@ -87,12 +87,12 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
             /**
              * If a website was specified, check if the module may send statistics for that website
              */
-            $sendStatistics = $website->getConfig(self::XPATH_SEND_STATISTICS);
+            $sendStatistics = $website->getConfig(self::XML_PATH_SEND_STATISTICS);
         } else {
             /**
              * otherwise, check if ending statistics was enabled in default settings
              */
-            $sendStatistics = Mage::getStoreConfigFlag(self::XPATH_SEND_STATISTICS, $storeId);
+            $sendStatistics = Mage::getStoreConfigFlag(self::XML_PATH_SEND_STATISTICS, $storeId);
         }
 
         if (!$sendStatistics) {
@@ -102,8 +102,8 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
         /**
          * Check if the security keys have been entered.
          */
-        $privateKey = Mage::getStoreConfig(self::XPATH_EXTENSIONCONTROL_PRIVATE_KEY, $storeId);
-        $uniqueKey  = Mage::getStoreConfig(self::XPATH_EXTENSIONCONTROL_UNIQUE_KEY, $storeId);
+        $privateKey = Mage::getStoreConfig(self::XML_PATH_EXTENSIONCONTROL_PRIVATE_KEY, $storeId);
+        $uniqueKey  = Mage::getStoreConfig(self::XML_PATH_EXTENSIONCONTROL_UNIQUE_KEY, $storeId);
 
         if (empty($privateKey) || empty($uniqueKey)) {
             return false;
@@ -121,7 +121,7 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
     {
         $storeId = Mage_Core_Model_App::ADMIN_STORE_ID;
 
-        $receiveUpdates =  Mage::getStoreConfigFlag(self::XPATH_RECEIVE_UPDATES, $storeId);
+        $receiveUpdates =  Mage::getStoreConfigFlag(self::XML_PATH_RECEIVE_UPDATES, $storeId);
         if (!$receiveUpdates) {
             return false;
         }
@@ -140,9 +140,7 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
     {
         $value = (string) $value;
 
-        /** @var Mage_Core_Helper_Data $helper */
-        $helper = Mage::helper('core');
-        $encrypted = $helper->encrypt($value);
+        $encrypted = Mage::helper('core')->encrypt($value);
 
         return $encrypted;
     }
@@ -150,13 +148,13 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
     /**
      * Logs a webservice request and response for debug purposes.
      *
-     * @param SoapClient $client
+     * @param Zend_Soap_Client $client
      *
-     * @return $this
+     * @return TIG_PostNL_Helper_Webservices
      *
      * @see Mage::log()
      */
-    public function logWebserviceCall(SoapClient $client)
+    public function logWebserviceCall($client)
     {
         if (!$this->isLoggingEnabled()) {
             return $this;
@@ -164,8 +162,8 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
 
         $this->createLogDir();
 
-        $requestXml = $this->formatXml($client->__getLastRequest());
-        $responseXML = $this->formatXml($client->__getLastResponse());
+        $requestXml = $this->formatXml($client->getLastRequest());
+        $responseXML = $this->formatXml($client->getLastResponse());
 
         $logMessage = "Request sent:\n"
                     . $requestXml
@@ -183,7 +181,7 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
      *
      * @param Mage_Core_Exception|TIG_PostNL_Exception|SoapFault $exception
      *
-     * @return $this
+     * @return TIG_PostNL_Helper_Webservices
      *
      * @see Mage::logException()
      */

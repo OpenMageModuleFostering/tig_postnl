@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_Barcode
@@ -61,29 +61,15 @@ class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_Barcode
         /**
          * The shipment was not shipped using PostNL
          */
+        $postnlShippingMethods = Mage::helper('postnl/carrier')->getPostnlShippingMethods();
         $shippingMethod = $row->getData(self::SHIPPING_METHOD_COLUMN);
-        /** @var TIG_PostNL_Helper_Carrier $helper */
-        $helper = Mage::helper('postnl/carrier');
-        if (!$helper->isPostnlShippingMethod($shippingMethod)) {
-            return '';
+        if (!in_array($shippingMethod, $postnlShippingMethods)) {
+            return parent::render($row);
         }
 
         /**
-         * If this is a buspakje shipment, a custom barcode is used that will not be displayed here.
-         *
-         * @var $postnlShipmentClassName TIG_PostNL_Model_Core_Shipment
+         * Check if any data is available
          */
-        /** @noinspection PhpParamsInspection */
-        $postnlShipmentClassName = Mage::getConfig()->getModelClassName('postnl_core/shipment');
-        if ($row->getData(self::CONFIRM_STATUS_COLUMN) == $postnlShipmentClassName::CONFIRM_STATUS_BUSPAKJE) {
-            return '';
-        }
-
-        /**
-         * Check if any data is available.
-         */
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        /** @noinspection PhpUndefinedMethodInspection */
         $value = $row->getData($this->getColumn()->getIndex());
         if (!$value) {
             $value = Mage::helper('postnl')->__('No barcode available.');
@@ -92,7 +78,10 @@ class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_Barcode
 
         /**
          * If the shipment hasn't been confirmed yet, the barcode will not be known by PostNL track & trace.
+         *
+         * @var $postnlShipmentClassName TIG_PostNL_Model_Core_Shipment
          */
+        $postnlShipmentClassName = Mage::getConfig()->getModelClassName('postnl_core/shipment');
         if ($row->getData(self::CONFIRM_STATUS_COLUMN) != $postnlShipmentClassName::CONFIRM_STATUS_CONFIRMED) {
             return $value;
         }
@@ -107,7 +96,7 @@ class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_Barcode
             'postcode'    => $postcode,
         );
 
-        $barcodeUrl = $helper->getBarcodeUrl($value, $destinationData, false, true);
+        $barcodeUrl = Mage::helper('postnl/carrier')->getBarcodeUrl($value, $destinationData, false, true);
 
         $barcodeHtml = "<a href='{$barcodeUrl}' target='_blank'>{$value}</a>";
 

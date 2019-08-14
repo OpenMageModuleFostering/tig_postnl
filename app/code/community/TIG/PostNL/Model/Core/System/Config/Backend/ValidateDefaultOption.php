@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                                            hasIsIncludingTax()
@@ -46,7 +46,7 @@ class TIG_PostNL_Model_Core_System_Config_Backend_ValidateDefaultOption extends 
     /**
      * Xpath to supported options configuration setting
      */
-    const XPATH_SUPPORTED_PRODUCT_OPTIONS = 'postnl/grid/supported_product_options';
+    const XPATH_SUPPORTED_PRODUCT_OPTIONS = 'postnl/cif_product_options/supported_product_options';
 
     /**
      * Validate that a chosen default option is actually available.
@@ -77,13 +77,11 @@ class TIG_PostNL_Model_Core_System_Config_Backend_ValidateDefaultOption extends 
             return true;
         }
 
-        /** @var TIG_PostNL_Helper_Data $helper */
         $helper = Mage::helper('postnl');
 
         /**
          * Get the system.xml configuration.
          */
-        /** @var Mage_Adminhtml_Model_Config $configFields */
         $configFields = Mage::getSingleton('adminhtml/config');
         $sections     = $configFields->getSections('postnl');
 
@@ -96,19 +94,18 @@ class TIG_PostNL_Model_Core_System_Config_Backend_ValidateDefaultOption extends 
         /**
          * Search for the label of the current field and translate it.
          */
-        $label = (string) $sections->$pathParts[0]->groups->$pathParts[1]->fields->$pathParts[2]->label;
+        $label = $sections->$pathParts[0]->groups->$pathParts[1]->fields->$pathParts[2]->label;
         $label = $helper->__($label);
 
         /**
          * Get the translated label of the supported options field.
          */
-        /** @noinspection PhpUndefinedFieldInspection */
-        $supportedOptionsLabel = (string) $sections->postnl
-                                                   ->groups
-                                                   ->cif_product_options
-                                                   ->fields
-                                                   ->supported_product_options
-                                                   ->label;
+        $supportedOptionsLabel =(string) $sections->postnl
+                                                  ->groups
+                                                  ->cif_product_options
+                                                  ->fields
+                                                  ->supported_product_options
+                                                  ->label;
         $supportedOptionsLabel = $helper->__($supportedOptionsLabel);
 
         /**
@@ -134,9 +131,9 @@ class TIG_PostNL_Model_Core_System_Config_Backend_ValidateDefaultOption extends 
         /**
          * Set this field's value to null, as it's selected option is invalid.
          */
-        $this->setValue(false);
+        $this->setValue(null);
 
-        return false;
+        return true;
     }
 
     /**

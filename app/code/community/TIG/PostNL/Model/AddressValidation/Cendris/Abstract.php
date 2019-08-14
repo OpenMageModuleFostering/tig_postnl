@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
 advanced * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_AddressValidation_Cendris_Abstract extends Varien_Object
@@ -68,11 +68,11 @@ class TIG_PostNL_Model_AddressValidation_Cendris_Abstract extends Varien_Object
             );
 
             /**
-             * try to create a new SoapClient instance based on the supplied wsdl. if it fails, try again without using the
+             * try to create a new Zend_Soap_Client instance based on the supplied wsdl. if it fails, try again without using the
              * wsdl cache.
              */
             try {
-                $client  = new SoapClient(
+                $client  = new Zend_Soap_Client(
                     $wsdl,
                     $soapOptions
                 );
@@ -82,7 +82,7 @@ class TIG_PostNL_Model_AddressValidation_Cendris_Abstract extends Varien_Object
                  */
                 $soapOptions['cache_wsdl'] = WSDL_CACHE_NONE;
 
-                $client  = new SoapClient(
+                $client  = new Zend_Soap_Client(
                     $wsdl,
                     $soapOptions
                 );
@@ -96,9 +96,7 @@ class TIG_PostNL_Model_AddressValidation_Cendris_Abstract extends Varien_Object
                 $soapParams
             );
 
-            /** @var TIG_PostNL_Helper_AddressValidation $helper */
-            $helper = Mage::helper('postnl/addressValidation');
-            $helper->logCendrisCall($client);
+            Mage::helper('postnl/addressValidation')->logCendrisCall($client);
             return $response;
         } catch(SoapFault $e) {
             /**
@@ -107,9 +105,7 @@ class TIG_PostNL_Model_AddressValidation_Cendris_Abstract extends Varien_Object
             if (!isset($client)) {
                 $client = false;
             }
-            /** @var TIG_PostNL_Helper_AddressValidation $helper */
-            $helper = Mage::helper('postnl/addressValidation');
-            $helper->logCendrisException($e, $client);
+            Mage::helper('postnl/addressValidation')->logCendrisException($e, $client);
 
             throw $e;
         }

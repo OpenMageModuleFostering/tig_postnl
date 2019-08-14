@@ -25,20 +25,18 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 ?>
-<?php $_hideNotificationUrl = $this->getUrl('adminhtml/postnlAdminhtml_config/hideNotification'); ?>
-
 <div id="print_label_spinner" class="waiting-notification" style="display:none;">
     <div class="content">
         <img src="<?php echo $this->getSkinUrl('images/ajax-loader-tr.gif') ?>" alt="spinner" />
@@ -85,18 +83,13 @@
                         'onComplete': this.onMassactionComplete.bind(this)
                     });
                 } else if(item.url) {
-                    if (item.id == 'postnl_print_labels_and_confirm'
-                        || item.id == 'postnl_print_packing_slips_and_confirm'
-                        || item.id == 'postnl_print_labels'
-                        || item.id == 'postnl_print_packing_slips'
-                    ) {
+                    if (item.id == 'postnl_print_labels_and_confirm' || item.id == 'postnl_print_labels') {
                         var windowName = 'printWindow' + (new Date()).getTime();
                         var printWindow = window.open('', windowName);
 
                         Event.observe(printWindow, 'unload', function() {
-                            setTimeout(function () {
-                                window.location.reload();
-                            });
+                            Event.stopObserving(printWindow);
+                            window.location.reload();
                         });
                         this.form.setAttribute('target', windowName);
                     } else {
@@ -114,34 +107,14 @@
                 }
             }
         });
-
-        var hideNotification = function(event) {
-            event.stop();
-
-            var element = Event.element(event);
-            var notificationCode = element.getAttribute('data-notification_code');
-
-            new Ajax.Request('<?php echo $_hideNotificationUrl; ?>', {
-                method : 'post',
-                parameters : {
-                    notification_code : notificationCode
-                },
-                onSuccess : function() {
-                    element.up('.module-message').fade();
-                }
-            });
-        };
-
-        $$('.postnl-hide-notification-link').invoke('observe', 'click', hideNotification.bindAsEventListener());
     });
     printLabel = function(url) {
         $$('body')[0].addClassName('no-scroll').scrollTo();
         $('print_label_spinner').show();
         var printWindow = window.open(url);
         Event.observe(printWindow, 'unload', function() {
-            setTimeout(function () {
-                window.location.reload();
-            });
+            Event.stopObserving(printWindow);
+            window.location.reload();
         });
 
         return false;

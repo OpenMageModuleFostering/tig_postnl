@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                                  hasPhoneNumber()
@@ -93,7 +93,6 @@ class TIG_PostNL_Block_DeliveryOptions_Checkout_AddPhoneNumber extends TIG_PostN
 
         $quote = $this->getQuote();
         if (!$quote) {
-            /** @var Mage_Sales_Model_Quote_Address $shippingAddress */
             $shippingAddress = Mage::getModel('sales/quote_address');
 
             $this->setShippingAddress($shippingAddress);
@@ -117,9 +116,7 @@ class TIG_PostNL_Block_DeliveryOptions_Checkout_AddPhoneNumber extends TIG_PostN
             return $this->_getData('quote');
         }
 
-        /** @var Mage_Checkout_Model_Session $session */
-        $session = Mage::getSingleton('checkout/session');
-        $quote = $session->getQuote();
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
 
         $this->setQuote($quote);
         return $quote;

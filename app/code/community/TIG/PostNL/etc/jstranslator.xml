@@ -26,19 +26,20 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 -->
 <jstranslator>
+    <!-- deliveryOptions.js -->
     <more_info translate="message" module="postnl">
         <message>More Info</message>
     </more_info>
@@ -54,20 +55,11 @@
     <evening translate="message" module="postnl">
         <message>evening</message>
     </evening>
-    <sunday translate="message" module="postnl">
-        <message>sunday</message>
-    </sunday>
-    <monday translate="message" module="postnl">
-        <message>monday</message>
-    </monday>
-    <same_day translate="message" module="postnl">
-        <message>today</message>
-    </same_day>
     <post_office translate="message" module="postnl">
         <message>Post Office</message>
     </post_office>
     <package_dispenser translate="message" module="postnl">
-        <message>Parcel Dispenser</message>
+        <message>Package Dispenser</message>
     </package_dispenser>
     <monday_short translate="message" module="postnl">
         <message>Mo</message>
@@ -123,43 +115,4 @@
     <open_24_7 translate="message" module="postnl">
         <message>Open 24/7</message>
     </open_24_7>
-    <fits_through_the_mailslot translate="message" module="postnl">
-        <message>Fits through the mailslot</message>
-    </fits_through_the_mailslot>
-    <select_location translate="message" module="postnl">
-        <message>Select location</message>
-    </select_location>
-    <show_map translate="message" module="postnl">
-        <message>Show map</message>
-    </show_map>
-    <advanced_settings translate="message" module="postnl">
-        <message>Advanced Settings</message>
-    </advanced_settings>
-    <as_soon_as_possible translate="message" module="postnl">
-        <message>As soon as possible</message>
-    </as_soon_as_possible>
-    <wizard_previous_step_saved translate="message" module="postnl">
-        <message>The previous step has been saved successfully!</message>
-    </wizard_previous_step_saved>
-    <wizard_current_step_saved translate="message" module="postnl">
-        <message>This step has been saved successfully!</message>
-    </wizard_current_step_saved>
-    <parcel_dispenser translate="message" module="postnl">
-        <message>parcel dispenser</message>
-    </parcel_dispenser>
-    <post_office_address translate="message" module="postnl">
-        <message>Post Office Address</message>
-    </post_office_address>
-    <today_cooled translate="message" module="postnl">
-        <message>today cooled</message>
-    </today_cooled>
-    <cooled_delivery translate="message" module="postnl">
-        <message>cooled delivery</message>
-    </cooled_delivery>
-    <food_delivery_not_possible_postalcode translate="message" module="postnl">
-        <message>Food products delivery is not possible for this postal code. Please choose a different address.</message>
-    </food_delivery_not_possible_postalcode>
-    <please_enter_future_date translate="message" module="postnl">
-        <message>Please enter a date that is in the future.</message>
-    </please_enter_future_date>
 </jstranslator>

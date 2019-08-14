@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_DeliveryDate
@@ -44,7 +44,6 @@ class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_DeliveryDate
      */
     const SHIPPING_METHOD_COLUMN = 'shipping_method';
     const CONFIRM_DATE_COLUMN    = 'confirm_date';
-    const COUNTRY_ID_COLUMN      = 'country_id';
 
     /**
      * Renders column.
@@ -55,21 +54,12 @@ class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_DeliveryDate
      */
     public function render(Varien_Object $row)
     {
+        $postnlShippingMethods = Mage::helper('postnl/carrier')->getPostnlShippingMethods();
         $shippingMethod = $row->getData(self::SHIPPING_METHOD_COLUMN);
-
-        /** @var TIG_PostNL_Helper_Carrier $helper */
-        $helper = Mage::helper('postnl/carrier');
-        if (!$helper->isPostnlShippingMethod($shippingMethod)) {
-            return '';
+        if (!in_array($shippingMethod, $postnlShippingMethods)) {
+            return parent::render($row);
         }
 
-        $domesticCountry = $helper->getDomesticCountry();
-        if ($row->getData(self::COUNTRY_ID_COLUMN) != $domesticCountry) {
-            return Mage::helper('postnl')->__('N/A');
-        }
-
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        /** @noinspection PhpUndefinedMethodInspection */
         $value = $row->getData($this->getColumn()->getIndex());
 
         /**
@@ -77,20 +67,10 @@ class TIG_PostNL_Block_Adminhtml_Widget_Grid_Column_Renderer_DeliveryDate
          */
         if (!$value) {
             $confirmDate  = $row->getData(self::CONFIRM_DATE_COLUMN);
-            $confirmDate = new DateTime($confirmDate, new DateTimeZone('UTC'));
-            $confirmDate->add(new DateInterval('P1D'));
+            $deliveryDate = date('Y-m-d H:i:s', strtotime($confirmDate . ' + 1 day'));
 
-            $deliveryDate = $confirmDate;
-        } else {
-            $deliveryDate = new DateTime($value, new DateTimeZone('UTC'));
+            $row->setData($this->getColumn()->getIndex(), $deliveryDate);
         }
-
-        $timeZone = $helper->getStoreTimeZone($row->getData('store_id'), true);
-        $deliveryDate = $deliveryDate->setTimezone($timeZone)->format('Y-m-d H:i:s');
-
-        /** @noinspection PhpVoidFunctionResultUsedInspection */
-        /** @noinspection PhpUndefinedMethodInspection */
-        $row->setData($this->getColumn()->getIndex(), $deliveryDate);
 
         /**
          * Finally, simply render the date

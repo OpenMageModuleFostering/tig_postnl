@@ -25,33 +25,22 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_Core_Shipment_Process extends Mage_Index_Model_Process
 {
-    /**
-     * @var bool
-     */
     protected $_own = false;
 
-    /**
-     * @var null|boolean
-     */
     protected $_isLocked = null;
-
-    /**
-     * @var null|resource
-     */
-    protected $_lockFile = null;
 
     /**
      * Get lock file resource
@@ -60,14 +49,14 @@ class TIG_PostNL_Model_Core_Shipment_Process extends Mage_Index_Model_Process
      */
     protected function _getLockFile()
     {
-        if ($this->_lockFile) {
+        if ($this->_lockFile !== null) {
             return $this->_lockFile;
         }
 
         $varDir = Mage::getConfig()->getVarDir('locks');
         $file = $varDir . DS . 'postnl_process_' . $this->getId() . '.lock';
 
-        if (is_file($file) && is_writable($file)) {
+        if (is_file($file)) {
             if($this->_lockIsExpired()){
                 unlink($file);//remove file
                 $this->_lockFile = fopen($file, 'x');//create new lock file
@@ -78,9 +67,7 @@ class TIG_PostNL_Model_Core_Shipment_Process extends Mage_Index_Model_Process
             $this->_lockFile = fopen($file, 'x');
         }
 
-        /** @var Mage_Core_Model_Date $dateModel */
-        $dateModel = Mage::getModel('core/date');
-        fwrite($this->_lockFile, date('r', $dateModel->gmtTimestamp()));
+        fwrite($this->_lockFile, date('r', Mage::getModel('core/date')->gmtTimestamp()));
 
         return $this->_lockFile;
     }
@@ -89,7 +76,7 @@ class TIG_PostNL_Model_Core_Shipment_Process extends Mage_Index_Model_Process
      * Lock process without blocking.
      * This method allow protect multiple process running and fast lock validation.
      *
-     * @return $this
+     * @return TIG_PostNL_Model_Core_Shipment_Process
      */
     public function lock()
     {
@@ -102,9 +89,9 @@ class TIG_PostNL_Model_Core_Shipment_Process extends Mage_Index_Model_Process
     }
 
     /**
-     * Lock and block process.
+     * Lock and block process
      *
-     * @return $this
+     * @return TIG_PostNL_Model_Core_Shipment_Process
      */
     public function lockAndBlock()
     {
@@ -117,9 +104,9 @@ class TIG_PostNL_Model_Core_Shipment_Process extends Mage_Index_Model_Process
     }
 
     /**
-     * Unlock process.
+     * Unlock process
      *
-     * @return $this
+     * @return TIG_PostNL_Model_Core_Shipment_Process
      */
     public function unlock()
     {
@@ -189,13 +176,11 @@ class TIG_PostNL_Model_Core_Shipment_Process extends Mage_Index_Model_Process
         $varDir     = Mage::getConfig()->getVarDir('locks');
         $file       = $varDir . DS . 'postnl_process_'.$this->getId().'.lock';
 
-        if (!is_file($file) || !is_readable($file)) {
+        if(!is_file($file)){
             return false;
         }
 
-        /** @var Mage_Core_Model_Date $dateModel */
-        $dateModel = Mage::getModel('core/date');
-        $fiveMinAgo = $dateModel->gmtTimestamp();
+        $fiveMinAgo = Mage::getModel('core/date')->gmtTimestamp();
 
         $contents   = file_get_contents($file);
         $lockTime   = strtotime($contents);

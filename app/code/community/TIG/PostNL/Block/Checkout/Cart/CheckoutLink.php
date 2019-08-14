@@ -25,26 +25,21 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                     hasPublicWebshopId()
- * @method boolean                                     hasDoLoginCheck()
- * @method boolean                                     hasButtonTestBaseUrl()
- * @method boolean                                     hasButtonLiveBaseUrl()
- *
  * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setPublicWebshopId(string $value)
+ * @method boolean                                     hasDoLoginCheck()
  * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setDoLoginCheck(boolean $value)
- * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setButtonTestBaseUrl(string $value)
- * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setButtonLiveBaseUrl(string $value)
  */
 class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_Template
 {
@@ -56,8 +51,8 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_
     /**
      * Base URLs of the checkout button.
      */
-    const CHECKOUT_BUTTON_TEST_BASE_URL_XPATH = 'postnl/checkout/checkout_button_test_base_url';
-    const CHECKOUT_BUTTON_LIVE_BASE_URL_XPATH = 'postnl/checkout/checkout_button_live_base_url';
+    const CHECKOUT_BUTTON_TEST_BASE_URL = 'https://tppcb-sandbox.e-id.nl/Button/Checkout';
+    const CHECKOUT_BUTTON_LIVE_BASE_URL = 'https://checkout.postnl.nl/Button/Checkout';
 
     /**
      * Xpath to public webshop ID setting.
@@ -81,41 +76,9 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_
      */
     public function getCheckoutUrl()
     {
-        /** @var Mage_Checkout_Helper_Url $helper */
-        $helper = Mage::helper('checkout/url');
-        $url = $helper->getCheckoutUrl();
+        $url = Mage::helper('checkout/url')->getCheckoutUrl();
 
         return $url;
-    }
-
-    /**
-     * @return string
-     */
-    public function getButtonTestBaseUrl()
-    {
-        if ($this->hasButtonTestBaseUrl()) {
-            return $this->_getData('button_test_base_url');
-        }
-
-        $baseUrl = Mage::getStoreConfig(self::CHECKOUT_BUTTON_TEST_BASE_URL_XPATH);
-
-        $this->setButtonTestBaseUrl($baseUrl);
-        return $baseUrl;
-    }
-
-    /**
-     * @return string
-     */
-    public function getButtonLiveBaseUrl()
-    {
-        if ($this->hasButtonLiveBaseUrl()) {
-            return $this->_getData('button_live_base_url');
-        }
-
-        $baseUrl = Mage::getStoreConfig(self::CHECKOUT_BUTTON_LIVE_BASE_URL_XPATH);
-
-        $this->setButtonLiveBaseUrl($baseUrl);
-        return $baseUrl;
     }
 
     /**
@@ -158,11 +121,8 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_
      */
     public function canUsePostnlCheckout()
     {
-        /** @var Mage_Checkout_Model_Session $session */
-        $session = Mage::getSingleton('checkout/session');
-        $quote = $session->getQuote();
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
 
-        /** @var TIG_PostNL_Helper_Checkout $helper */
         $helper = Mage::helper('postnl/checkout');
         $canUseCheckout = $helper->canUsePostnlCheckout($quote);
 
@@ -170,9 +130,9 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_
          * If Checkout is not available, log the reason why for debugging purposes
          */
         if (!$canUseCheckout && Mage::registry('postnl_checkout_logged') === null) {
-            $configErrors = Mage::registry('postnl_checkout_is_configured_errors');
+            $configErrors = Mage::registry('postnl_is_configured_checkout_errors');
             if (is_null($configErrors)) {
-                $configErrors = Mage::registry('postnl_checkout_is_enabled_errors');
+                $configErrors = Mage::registry('postnl_enabled_checkout_errors');
             }
 
             if (is_null($configErrors)) {
@@ -218,12 +178,10 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_
      */
     public function getSrc($forceDisabled = false)
     {
-        /** @var TIG_PostNL_Helper_Checkout $helper */
-        $helper = Mage::helper('postnl/checkout');
-        if ($helper->isTestMode()) {
-            $baseUrl = $this->getButtonTestBaseUrl();
+        if (Mage::helper('postnl/checkout')->isTestMode()) {
+            $baseUrl = self::CHECKOUT_BUTTON_TEST_BASE_URL;
         } else {
-            $baseUrl = $this->getButtonLiveBaseUrl();;
+            $baseUrl = self::CHECKOUT_BUTTON_LIVE_BASE_URL;
         }
 
         $webshopId = $this->getPublicWebshopId();
@@ -252,9 +210,7 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_
             return false;
         }
 
-        /** @var Mage_Cms_Helper_Page $helper */
-        $helper = Mage::helper('cms/page');
-        $pageUrl = $helper->getPageUrl($instructionPage);
+        $pageUrl = Mage::helper('cms/page')->getPageUrl($instructionPage);
         return $pageUrl;
     }
 
@@ -265,13 +221,12 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_
      */
     protected function _toHtml()
     {
-        /** @var TIG_PostNL_Helper_Checkout $helper */
         $helper = Mage::helper('postnl/checkout');
         if (!$helper->isCheckoutActive() && Mage::registry('postnl_checkout_logged') === null) {
             /**
              * If Checkout is not available, log the reason why for debugging purposes
              */
-            $configErrors = Mage::registry('postnl_checkout_is_enabled_errors');
+            $configErrors = Mage::registry('postnl_enabled_checkout_errors');
 
             if (is_null($configErrors)) {
                 return '';

@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                               hasExtraCoverProductOptions()
@@ -59,9 +59,8 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_ProductOptions extends TIG_PostNL_B
             return $this->_getData('extra_cover_product_options');
         }
 
-        /** @var TIG_PostNL_Model_Core_System_Config_Source_AllProductOptions $sourceModel */
-        $sourceModel = Mage::getModel('postnl_core/system_config_source_allProductOptions');
-        $productOptions = $sourceModel->getExtraCoverOptions(true);
+        $productOptions = Mage::getModel('postnl_core/system_config_source_allProductOptions')
+                              ->getExtraCoverOptions(true);
 
         $this->setExtraCoverProductOptions($productOptions);
         return $productOptions;
@@ -78,16 +77,14 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_ProductOptions extends TIG_PostNL_B
             return $this->_getData('globalpack_product_option');
         }
 
-        /** @var TIG_PostNL_Model_Core_System_Config_Source_GlobalProductOptions $sourceModel */
-        $sourceModel = Mage::getModel('postnl_core/system_config_source_globalProductOptions');
-        $globalPackProductOption = $sourceModel->getAvailableOptions();
+        $globalPackProductOption = Mage::getModel('postnl_core/system_config_source_globalProductOptions')
+                                       ->getAvailableOptions();
 
         if (empty($globalPackProductOption)) {
             return '';
         }
 
-        $current = current($globalPackProductOption);
-        $optionValue = $current['value'];
+        $optionValue = $globalPackProductOption[0]['value'];
         $this->setGlobalpackProductOption($optionValue);
         return $optionValue;
     }
@@ -99,9 +96,7 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_ProductOptions extends TIG_PostNL_B
      */
     public function getShipmentTypes()
     {
-        /** @var TIG_PostNL_Helper_Cif $helper */
-        $helper = Mage::helper('postnl/cif');
-        $shipmentTypes = $helper->getShipmentTypes();
+        $shipmentTypes = Mage::helper('postnl/cif')->getShipmentTypes();
 
         return $shipmentTypes;
     }
@@ -109,15 +104,13 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_ProductOptions extends TIG_PostNL_B
     /**
      * Check if the PostNL module is enabled before rendering
      *
-     * @return string|parent::_toHtml()
+     * @return string | parent::_toHtml()
      *
      * @see Mage_Adminhtml_Block_Abstract::_toHtml()
      */
     protected function _toHtml()
     {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        if (!$helper->isEnabled()) {
+        if (!Mage::helper('postnl')->isEnabled()) {
             return '';
         }
 

@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2013 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * Class TIG_PostNL_Model_Core_Shipment_Label
@@ -45,29 +45,9 @@
  * @method TIG_PostNL_Model_Core_Shipment_Label setLabel(string $value)
  * @method int getParentId()
  * @method TIG_PostNL_Model_Core_Shipment_Label setParentId(int $value)
- * @method bool getResize()
- * @method TIG_PostNL_Model_Core_Shipment_Label setResize(bool $value)
  */
 class TIG_PostNL_Model_Core_Shipment_Label extends Mage_Core_Model_Abstract
 {
-    /**
-     * Supported label types.
-     */
-    const LABEL_TYPE_LABEL             = 'Label';
-    const LABEL_TYPE_RETURN_LABEL      = 'Return Label';
-    const LABEL_TYPE_BUSPAKJE          = 'BusPakje';
-    const LABEL_TYPE_BUSPAKJEEXTRA     = 'BusPakjeExtra';
-    const LABEL_TYPE_LABEL_COMBI       = 'Label-combi';
-    const LABEL_TYPE_CODCARD           = 'CODcard';
-    const LABEL_TYPE_CN23              = 'CN23';
-    const LABEL_TYPE_COMMERCIALINVOICE = 'CommercialInvoice';
-    const LABEL_TYPE_CP71              = 'CP71';
-
-    /**
-     * Regex to determine whether a label is actually a combi-label.
-     */
-    const COMBI_LABEL_REGEX = '#/MediaBox \[0 0 ([\d]+) ([\d]+) \]#';
-
     /**
      * Prefix of model events names
      *
@@ -105,58 +85,5 @@ class TIG_PostNL_Model_Core_Shipment_Label extends Mage_Core_Model_Abstract
         }
 
         return $label;
-    }
-
-    /**
-     * Check if this label is a return label.
-     *
-     * @return bool
-     */
-    public function isReturnLabel()
-    {
-        $labelType = $this->getLabelType();
-        /** @var TIG_PostNL_Helper_Cif $helper */
-        $helper = Mage::helper('postnl/cif');
-        $returnLabelTypes = $helper->getReturnLabelTypes();
-
-        if (in_array($labelType, $returnLabelTypes)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine whether this label is a combi-label or not.
-     *
-     * @return bool
-     */
-    public function isCombiLabel()
-    {
-        $labelType = $this->getLabelType();
-
-        if ($labelType != self::LABEL_TYPE_LABEL && $labelType != self::LABEL_TYPE_LABEL_COMBI) {
-            return false;
-        }
-
-        $labelContent = $this->getLabel(true);
-        preg_match(self::COMBI_LABEL_REGEX, $labelContent, $matches);
-        if (isset($matches[1]) && isset($matches[2]) && $matches[1] < $matches[2]) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return Mage_Core_Model_Abstract
-     */
-    protected function _beforeSave()
-    {
-        if ($this->getLabelType() == self::LABEL_TYPE_LABEL_COMBI && !$this->isCombiLabel()) {
-            $this->setLabelType(self::LABEL_TYPE_LABEL);
-        }
-
-        return parent::_beforeSave();
     }
 }

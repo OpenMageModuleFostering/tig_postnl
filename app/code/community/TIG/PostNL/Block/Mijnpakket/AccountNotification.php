@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                         hasCanShowNotification()
@@ -63,7 +63,7 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
     /**
      * Base URL to create a new MijnPakket account.
      */
-    const CREATE_ACCOUNT_BASE_URL_XPATH = 'postnl/delivery_options/create_account_base_url';
+    const CREATE_ACCOUNT_BASE_URL = 'https://mijnpakket.postnl.nl/Register/RegisterFromWebshop?';
 
     /**
      * The webshop's public webshop ID is used to secure communications with PostNL's servers.
@@ -73,6 +73,7 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
     /**
      * Xpaths determining various options regarding the MijnPakket notification.
      */
+    const XPATH_MIJNPAKKET_NOTIFICATION             = 'postnl/delivery_options/mijnpakket_notification';
     const XPATH_SHOW_CREATE_MIJNPAKKET_ACCOUNT_LINK = 'postnl/delivery_options/show_create_mijnpakket_account_link';
     const XPATH_SHOW_MIJNPAKKET_APP_LINK            = 'postnl/delivery_options/show_mijnpakket_app_link';
 
@@ -92,9 +93,13 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
             return $this->_getData('can_show_notification');
         }
 
-        /** @var TIG_PostNL_Helper_Mijnpakket $helper */
-        $helper = Mage::helper('postnl/mijnpakket');
-        $canShowNotification = $helper->canShowMijnpakketNotification();
+        if (!Mage::helper('postnl/deliveryOptions')->canUseDeliveryOptions()) {
+            $this->setCanShowNotification(false);
+            return false;
+        }
+
+        $storeId = Mage::app()->getStore()->getId();
+        $canShowNotification = Mage::getStoreConfigFlag(self::XPATH_MIJNPAKKET_NOTIFICATION, $storeId);
 
         $this->setCanShowNotification($canShowNotification);
         return $canShowNotification;
@@ -164,10 +169,7 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
             return $this->_getData('order');
         }
 
-        /** @var Mage_Checkout_Model_Session $session */
-        $session = Mage::getSingleton('checkout/session');
-        /** @noinspection PhpUndefinedMethodInspection */
-        $orderId = $session->getLastOrderId();
+        $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
         if (!$orderId) {
             return false;
         }
@@ -216,7 +218,7 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
             return $this->_getData('create_account_base_url');
         }
 
-        $baseUrl = Mage::getStoreConfig(self::CREATE_ACCOUNT_BASE_URL_XPATH);
+        $baseUrl = self::CREATE_ACCOUNT_BASE_URL;
 
         $this->setCreateAccountBaseUrl($baseUrl);
         return $baseUrl;
@@ -269,7 +271,6 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
             return array('webshopPublicId' => $publicWebshopId);
         }
 
-        /** @var TIG_PostNL_Helper_Mijnpakket $helper */
         $helper = Mage::helper('postnl/mijnpakket');
 
         /**
@@ -283,14 +284,13 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
             'middleName'      => $shippingAddress->getMiddlename(),
             'lastName'        => $shippingAddress->getLastname(),
             'email'           => $shippingAddress->getEmail(),
-            'postalCode'      => str_replace(' ', '', $shippingAddress->getPostcode()),
+            'postalCode'      => $shippingAddress->getPostcode(),
             'business'        => 'P',
         );
 
         /**
-         * If this address has a VAT ID, it's probably a B2B client.
+         * If this address hads a VAT ID, it's probably a B2B client.
          */
-        /** @noinspection PhpUndefinedMethodInspection */
         $vat = $shippingAddress->getVatId();
         if ($vat) {
             $params['business'] = 'Z';
@@ -299,15 +299,14 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
         /**
          * Optionally add the dob.
          */
-        /** @noinspection PhpUndefinedMethodInspection */
         $dob = $shippingAddress->getDob();
         if ($dob) {
-            $dob = new DateTime($dob);
-            $params['birthDate'] = $dob->format('d-m-Y');
+            $dob = date('d-m-Y', strtotime($dob));
+            $params['birthDate'] = $dob;
         }
 
         /**
-         * If we have a mobile phone number for this address, add that as well.
+         * If we have a mobile phonenumber for this address, add that as well.
          *
          * @var TIG_PostNL_Model_Core_Order $postnlOrder
          */
@@ -321,11 +320,9 @@ class TIG_PostNL_Block_Mijnpakket_AccountNotification extends TIG_PostNL_Block_C
          */
         $streetData = false;
         try {
-            /** @var TIG_PostNL_Helper_Cif $cifHelper */
-            $cifHelper = Mage::helper('postnl/cif');
-            $streetData = $cifHelper->getStreetData($order->getStoreId(), $shippingAddress, false);
+            $streetData = Mage::helper('postnl/cif')->getStreetData($order->getStoreId(), $shippingAddress, false);
         } catch (Exception $e) {
-            $helper->logException($e);
+            Mage::helper('postnl')->logException($e);
         }
 
         /**

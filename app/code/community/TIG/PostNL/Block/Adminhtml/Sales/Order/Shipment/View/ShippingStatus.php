@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Adminhtml_Sales_Order_Shipment_View_ShippingStatus extends TIG_PostNL_Block_Adminhtml_Template
@@ -62,9 +62,6 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_Shipment_View_ShippingStatus extend
       */
     public function getShippingStatus($shipment)
      {
-         /**
-          * @var TIG_PostnL_Model_Core_Shipment $postnlShipment
-          */
          $postnlShipment = Mage::getModel('postnl_core/shipment')->load($shipment->getId(), 'shipment_id');
 
         /**
@@ -96,51 +93,9 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_Shipment_View_ShippingStatus extend
     }
 
     /**
-     * Get the current shipping status for a shipment
-     *
-     * @param Mage_Sales_Model_Order_Shipment $shipment
-     *
-     * @return string
-     */
-    public function getReturnStatus($shipment)
-    {
-        /**
-         * @var TIG_PostnL_Model_Core_Shipment $postnlShipment
-         */
-        $postnlShipment = Mage::getModel('postnl_core/shipment')->load($shipment->getId(), 'shipment_id');
-
-        /**
-         * Check if the postnl shipment exists. Otherwise it was probably not shipped using PostNL.
-         * Even if it was, we would not be able to check the status of it anyway.
-         */
-        if (!$postnlShipment->getId()) {
-            return self::CLASS_NOT_POSTNL;
-        }
-
-        switch ($postnlShipment->getReturnPhase()) {
-            case 1:
-                $class = self::CLASS_COLLECTION;
-                break;
-            case 2:
-                $class = self::CLASS_DISTRIBUTION;
-                break;
-            case 3:
-                $class = self::CLASS_TRANSIT;
-                break;
-            case 4:
-                $class = self::CLASS_DELIVERED;
-                break;
-            default:
-                $class = self::CLASS_UNCONFIRMED;
-                break;
-        }
-        return $class;
-    }
-
-    /**
      * Checks if a given shipment has been confirmed with PostNL
      *
-     * @param Mage_Sales_Model_Order_Shipment $shipment
+     * @param Mage_Sales_Model_Order_Shipment
      *
      * @return boolean
      */
@@ -164,9 +119,7 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_Shipment_View_ShippingStatus extend
      */
     protected function _toHtml()
     {
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        if (!$helper->isEnabled()) {
+        if (!Mage::helper('postnl')->isEnabled()) {
             return '';
         }
 

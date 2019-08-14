@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Core_JsTranslate extends TIG_PostNL_Block_Core_Template
@@ -92,7 +92,7 @@ class TIG_PostNL_Block_Core_JsTranslate extends TIG_PostNL_Block_Core_Template
     /**
      * @param null|Varien_Simplexml_Config $config
      *
-     * @return $this
+     * @return TIG_PostNL_Block_Core_JsTranslate
      */
     public function setConfig($config)
     {
@@ -118,9 +118,7 @@ class TIG_PostNL_Block_Core_JsTranslate extends TIG_PostNL_Block_Core_Template
     {
         $messages = $this->_getTranslateData();
 
-        /** @var Mage_Core_Helper_Data $helper */
-        $helper = Mage::helper('core');
-        $json = $helper->jsonEncode($messages);
+        $json = Mage::helper('core')->jsonEncode($messages);
         return $json;
     }
 
@@ -203,7 +201,6 @@ class TIG_PostNL_Block_Core_JsTranslate extends TIG_PostNL_Block_Core_Template
      */
     protected function _toHtml()
     {
-        /** @var TIG_PostNL_Helper_Data $helper */
         $helper = Mage::helper('postnl');
         if (!$helper->isEnterprise() && version_compare(Mage::getVersion(), '1.7.0.0', '>=')) {
             return '';

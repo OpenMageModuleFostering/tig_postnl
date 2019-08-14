@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Adminhtml_System_Config_Form_Field_TablerateExport
@@ -53,10 +53,8 @@ class TIG_PostNL_Block_Adminhtml_System_Config_Form_Field_TablerateExport
             'website' => $buttonBlock->getRequest()->getParam('website')
         );
 
-        /** @var Mage_Adminhtml_Helper_Data $helper */
-        $helper = Mage::helper('adminhtml');
         $onClick = 'setLocation(\''
-                 . $helper->getUrl("adminhtml/postnlAdminhtml_config/exportTablerates", $params)
+                 . Mage::helper('adminhtml')->getUrl("postnl_admin/adminhtml_config/exportTablerates", $params)
                  . 'conditionName/\' + $(\'carriers_postnl_condition_name\').value + \'/tablerates.csv\' )';
 
         $data = array(
@@ -67,8 +65,7 @@ class TIG_PostNL_Block_Adminhtml_System_Config_Form_Field_TablerateExport
             'class'   => 'scalable postnl-button',
         );
 
-        $buttonBlock->setData($data);
-        $html = $buttonBlock->toHtml();
+        $html = $buttonBlock->setData($data)->toHtml();
 
         return $html;
     }

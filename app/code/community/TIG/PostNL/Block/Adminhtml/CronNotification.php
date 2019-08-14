@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Block_Adminhtml_CronNotification extends TIG_PostNL_Block_Adminhtml_Template
@@ -59,7 +59,6 @@ class TIG_PostNL_Block_Adminhtml_CronNotification extends TIG_PostNL_Block_Admin
         /**
          * Get the last execution time from the cron_schedule table
          */
-        /** @var Mage_Core_Model_Resource $coreResource */
         $coreResource = Mage::getSingleton('core/resource');
         $readConnection = $coreResource->getConnection('core_read');
 
@@ -111,16 +110,11 @@ class TIG_PostNL_Block_Adminhtml_CronNotification extends TIG_PostNL_Block_Admin
          * Check if the last execution time was more than an hour ago.
          * If no crontask has been executed in an hour it's likely that something is wrong.
          */
-        $utcTimeZone = new DateTimeZone('UTC');
-        $currentTime = new DateTime('now', $utcTimeZone);
-        /** @var Mage_Core_Model_Date $dateModel */
-        $dateModel = Mage::getModel('core/date');
-        $currentTime->setTimestamp($dateModel->gmtTimestamp());
+        $currentTimestamp       = Mage::getModel('core/date')->gmtTimestamp();
+        $oneHourAgoTimestamp    = strtotime('-1 hour', $currentTimestamp);
+        $lastExecutionTimestamp = strtotime($lastExecutionTime);
 
-        $oneHourAgo        = $currentTime->sub(new DateInterval('PT1H'));
-        $lastExecutionTime = new DateTime($lastExecutionTime, $utcTimeZone);
-
-        if ($lastExecutionTime < $oneHourAgo) {
+        if ($lastExecutionTimestamp < $oneHourAgoTimestamp) {
             return false;
         }
 

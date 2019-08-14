@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                                 hasAddressBlockClass()
@@ -73,7 +73,7 @@ class TIG_PostNL_Model_AddressValidation_Observer_AddressBook extends Varien_Obj
      *
      * @param Varien_Event_Observer $observer
      *
-     * @return $this
+     * @return TIG_PostNL_Model_AddressValidation_Observer_AddressBook
      *
      * @event core_block_abstract_to_html_before
      *
@@ -83,26 +83,23 @@ class TIG_PostNL_Model_AddressValidation_Observer_AddressBook extends Varien_Obj
     public function addressBookPostcodeCheck(Varien_Event_Observer $observer)
     {
         /**
+         * Check if the extension is active
+         */
+        if (!Mage::helper('postnl/addressValidation')->isPostcodeCheckEnabled(null, self::POSTCODECHECK_ENV)) {
+            return $this;
+        }
+
+        /**
          * Checks if the current block is the one we want to edit.
          *
          * Unfortunately there is no unique event for this block.
          *
          * @var Mage_Customer_Block_Address_Edit $block
          */
-        /** @noinspection PhpUndefinedMethodInspection */
-        $block      = $observer->getBlock();
+        $block = $observer->getBlock();
         $blockClass = $this->getAddressBlockClass();
 
         if (get_class($block) !== $blockClass) {
-            return $this;
-        }
-
-        /**
-         * Check if the extension is active
-         */
-        /** @var TIG_PostNL_Helper_AddressValidation $helper */
-        $helper = Mage::helper('postnl/addressValidation');
-        if (!$helper->isPostcodeCheckEnabled(null, self::POSTCODECHECK_ENV)) {
             return $this;
         }
 

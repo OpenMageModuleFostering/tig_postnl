@@ -25,26 +25,16 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
- *
- * @method boolean hasStoreId()
- * @method boolean hasWebsite()
- *
- * @method string getStoreCode()
- * @method string getWebsiteCode()
- * @method array  getGroups()
- *
- * @method TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount setStoreId(int $value)
- * @method TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount setWebsite(Mage_Core_Model_Website $value)
  */
 class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount extends Mage_Core_Model_Config_Data
 {
@@ -90,7 +80,6 @@ class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount e
         }
 
         $websiteCode = $this->getWebsiteCode();
-        /** @var Mage_Core_Model_Website $website */
         $website = Mage::getModel('core/website')->load($websiteCode, 'code');
 
         $this->setWebsite($website);
@@ -145,9 +134,7 @@ class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount e
          * Decrypt and then hash the password.
          */
         $password = trim($password);
-        /** @var Mage_Core_Helper_Data $helper */
-        $helper = Mage::helper('core');
-        $password = sha1($helper->decrypt($password));
+        $password = sha1(Mage::helper('core')->decrypt($password));
 
         /**
          * Put all credentials into an array.
@@ -161,11 +148,10 @@ class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount e
         );
 
         /**
-         * Load the CIF model and set to test mode to false.
+         * Load the CIF model and set to test mode to false
          */
-        /** @var TIG_PostNL_Model_Core_Cif $cif */
-        $cif = Mage::getModel('postnl_core/cif');
-        $cif->setTestMode($testMode);
+        $cif = Mage::getModel('postnl_core/cif')
+                   ->setTestMode($testMode);
 
         /**
          * Attempt to generate a barcode to test the account settings. This will result in an exception if the settings
@@ -198,12 +184,7 @@ class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount e
      */
     protected function _getIsTestMode()
     {
-        $cifTestMode = false;
-        $cifMode = $this->_getConfigValue(self::XPATH_MODE);
-
-        if ($cifMode !== '2') {
-            $cifTestMode = true;
-        }
+        $cifTestMode = (bool) $this->_getConfigValue(self::XPATH_MODE);
 
         return $cifTestMode;
     }
@@ -212,7 +193,7 @@ class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount e
      * Gets a config value. First we try to get the value from the fields we are currently trying to save. if the path
      * is not among the fields we're saving, get it from the database for the current scope.
      *
-     * @param string $path An xpath to the setting we're trying to retrieve
+     * @param string $path An xpath to the setting we're trying to retreive
      *
      * @return string|null
      *
@@ -276,7 +257,6 @@ class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount e
          * Get the error from the extension's config.xml
          */
         $error = Mage::getConfig()->getNode('tig/errors/POSTNL-0114');
-        /** @noinspection PhpUndefinedFieldInspection */
         $link = (string) $error->url;
 
         /**
@@ -289,13 +269,13 @@ class TIG_PostNL_Model_AddressValidation_System_Config_Backend_ValidateAccount e
         );
 
         /**
-         * Append a link to the TIG knowledgebase if available.
+         * Append a link to the TiG knowledgebase if available.
          */
         if ($link) {
             $errorMessage .= ' <a href="'
                            . $link
                            . '" target="_blank" class="postnl-message">'
-                           . $helper->__('Click here for more information from the TIG knowledgebase.')
+                           . $helper->__('Click here for more information from the TiG knowledgebase.')
                            . '</a>';
         }
 

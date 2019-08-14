@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Action
@@ -45,9 +45,12 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     const LONGITUDE_REGEX = '#^-?([1]?[1-7][1-9]|[1]?[1-8][0]|[1-9]?[0-9])\.{1}\d{1,6}#';
 
     /**
-     * Regular expressions to validate address fields.
+     * Regular expressions to validate various address fields.
      */
+    const CITY_NAME_REGEX   = '#^[a-zA-Z]+(?:(?:\\s+|-)[a-zA-Z]+)*$#';
+    const STREET_NAME_REGEX = "#^[a-zA-Z0-9\s,'-]*$#";
     const HOUSENR_EXT_REGEX = "#^[a-zA-Z0-9\s,'-]*$#";
+    const NAME_REGEX        = "#^[a-zA-Z0-9\s,'-]*$#";
 
     /**
      * Regular expression to validate dutch phone number.
@@ -58,11 +61,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
      * Regular expression to validate dutch mobile phone number.
      */
     const MOBILE_PHONE_NUMBER_REGEX = '#^(((\+31|0|0031)6){1}[1-9]{1}[0-9]{7})$#i';
-
-    /**
-     * Regular expression to match a valid PostNL time.
-     */
-    const TIME_REGEX = '#^[0-9]{2,2}:[0-9]{2,2}(:[0-9]{2,2})?$#';
 
     /**
      * @var null|array
@@ -90,9 +88,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             return $this->_validTypes;
         }
 
-        /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-        $helper = Mage::helper('postnl/deliveryOptions');
-        $validTypes = $helper->getValidTypes();
+        $validTypes = Mage::helper('postnl/deliveryOptions')->getValidTypes();
 
         $this->setValidTypes($validTypes);
         return $validTypes;
@@ -101,7 +97,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * @param array $validTypes
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function setValidTypes($validTypes)
     {
@@ -133,7 +129,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * @param boolean $canUse
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function setCanUseDeliveryOptions($canUse)
     {
@@ -161,7 +157,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     {
         $service = $this->_service;
         if ($service === null) {
-            /** @var TIG_PostNL_Model_DeliveryOptions_Service $service */
             $service = Mage::getModel('postnl_deliveryoptions/service');
 
             $this->setService($service);
@@ -173,7 +168,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * @param TIG_PostNL_Model_DeliveryOptions_Service $service
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function setService(TIG_PostNL_Model_DeliveryOptions_Service $service)
     {
@@ -185,13 +180,10 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * Save Extra costs associated with a selected option.
      *
-     * @deprecated v1.6.0
-     *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function saveOptionCostsAction()
     {
-        trigger_error('This method is deprecated and may be removed in the future.', E_USER_NOTICE);
         /**
          * This action may only be called using AJAX requests
          */
@@ -216,9 +208,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
 
             $this->getService()->saveOptionCosts($costs);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('invalid_data');
@@ -239,7 +229,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * Saves a mobile phonenumber for parceldispenser orders.
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function savePhoneNumberAction()
     {
@@ -267,9 +257,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
 
             $this->getService()->saveMobilePhoneNumber($phoneNumber);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('invalid_data');
@@ -286,7 +274,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * Saves the selected shipment option.
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function saveSelectedOptionAction()
     {
@@ -300,15 +288,20 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             return $this;
         }
 
+        if (!$this->_canUseDeliveryOptions()) {
+            $this->getResponse()
+                 ->setBody('not_allowed');
+
+            return $this;
+        }
+
         $params = $this->getRequest()->getPost();
 
         try {
             $data = $this->_getSaveSelectionPostData($params);
             $this->getService()->saveDeliveryOption($data);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('invalid_data');
@@ -329,7 +322,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * Get possible evening delivery time frames based on an earliest possible delivery date.
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function getDeliveryTimeframesAction()
     {
@@ -357,9 +350,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         try {
             $data = $this->_getTimeframePostData($params);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('invalid_data');
@@ -368,14 +359,11 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         }
 
         try {
-            /** @var TIG_PostNL_Model_DeliveryOptions_Cif $cif */
             $cif = Mage::getModel('postnl_deliveryoptions/cif');
             $response = $cif->setStoreId($storeId)
                             ->getDeliveryTimeframes($data);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('error');
@@ -383,34 +371,20 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             return $this;
         }
 
-        if (!$response) {
-            $this->getResponse()
-                 ->setBody('empty_response');
-
-            return $this;
-        }
-
-        /**
-         * Filter out unavailable time frames.
-         */
-        $timeframes = $this->getService()->filterTimeframes($response, $data['country'], $data['deliveryDate']);
-
-        if (!$timeframes) {
+        if (!is_array($response)) {
             $this->getResponse()
                  ->setBody('error');
 
             return $this;
         }
 
-        /** @var Mage_Core_Helper_Data $coreHelper */
-        $coreHelper = Mage::helper('core');
-        $timeframes = $coreHelper->jsonEncode($timeframes);
+        $timeframes = Mage::helper('core')->jsonEncode($response);
 
         /**
          * Return the result as a json response
          */
         $this->getResponse()
-             ->setHeader('Content-type', 'application/x-json', true)
+             ->setHeader('Content-type', 'application/x-json')
              ->setBody($timeframes);
 
         return $this;
@@ -419,7 +393,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * Get the nearest post office locations based on either a postcode or a longitude and latitude.
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function getNearestLocationsAction()
     {
@@ -447,9 +421,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         try {
             $data = $this->_getLocationPostData($postData);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('invalid_data');
@@ -458,14 +430,11 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         }
 
         try {
-            /** @var TIG_PostNL_Model_DeliveryOptions_Cif $cif */
             $cif = Mage::getModel('postnl_deliveryoptions/cif');
             $response = $cif->setStoreId($storeId)
                             ->getNearestLocations($data);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('error');
@@ -487,19 +456,15 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             return $this;
         }
 
-        /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-        $helper = Mage::helper('postnl/deliveryOptions');
-        $response = $helper->markEveningLocations($response, $data['deliveryDate']);
+        $response = Mage::helper('postnl/deliveryOptions')->markEveningLocations($response, $data['deliveryDate']);
 
-        /** @var Mage_Core_Helper_Data $coreHelper */
-        $coreHelper = Mage::helper('core');
-        $locations = $coreHelper->jsonEncode($response);
+        $locations = Mage::helper('core')->jsonEncode($response);
 
         /**
          * Return the result as a json response
          */
         $this->getResponse()
-             ->setHeader('Content-type', 'application/x-json', true)
+             ->setHeader('Content-type', 'application/x-json')
              ->setBody($locations);
 
         return $this;
@@ -508,7 +473,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
     /**
      * Get all locations in a given area.
      *
-     * @return $this
+     * @return TIG_PostNL_DeliveryOptionsController
      */
     public function getLocationsInAreaAction()
     {
@@ -536,9 +501,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         try {
             $data = $this->_getLocationInAreaPostData($postData);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('invalid_data');
@@ -547,14 +510,11 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         }
 
         try {
-            /** @var TIG_PostNL_Model_DeliveryOptions_Cif $cif */
             $cif = Mage::getModel('postnl_deliveryoptions/cif');
             $response = $cif->setStoreId($storeId)
                             ->getLocationsInArea($data);
         } catch (Exception $e) {
-            /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-            $helper = Mage::helper('postnl/deliveryOptions');
-            $helper->logException($e);
+            Mage::helper('postnl/deliveryOptions')->logException($e);
 
             $this->getResponse()
                  ->setBody('error');
@@ -569,13 +529,9 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             return $this;
         }
 
-        /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
-        $helper = Mage::helper('postnl/deliveryOptions');
-        $response = $helper->markEveningLocations($response, $data['deliveryDate']);
+        $response = Mage::helper('postnl/deliveryOptions')->markEveningLocations($response, $data['deliveryDate']);
 
-        /** @var Mage_Core_Helper_Data $coreHelper */
-        $coreHelper = Mage::helper('core');
-        $locations = $coreHelper->jsonEncode($response);
+        $locations = Mage::helper('core')->jsonEncode($response);
 
         /**
          * Return the result as a json response
@@ -583,60 +539,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         $this->getResponse()
              ->setHeader('Content-type', 'application/x-json')
              ->setBody($locations);
-
-        return $this;
-    }
-
-    /**
-     * Get the formatted PakjeGemak address if available.
-     *
-     * @return $this
-     */
-    public function getFormattedPakjeGemakAddressAction()
-    {
-        /**
-         * This action may only be called using AJAX requests
-         */
-        if (!$this->getRequest()->isAjax()) {
-            $this->getResponse()
-                 ->setBody('not_allowed');
-
-            return $this;
-        }
-
-        if (!$this->_canUseDeliveryOptions()) {
-            $this->getResponse()
-                 ->setBody('not_allowed');
-
-            return $this;
-        }
-
-        /** @var Mage_Checkout_Model_Session $session */
-        $session = Mage::getSingleton('checkout/session');
-        $quote = $session->getQuote();
-
-        $pakjeGemakAddress = false;
-        /** @var Mage_Sales_Model_Quote_Address $address */
-        foreach ($quote->getAllAddresses() as $address) {
-            if ($address->getAddressType() == 'pakje_gemak') {
-                $pakjeGemakAddress = $address;
-                break;
-            }
-        }
-
-        if (!$pakjeGemakAddress) {
-            $this->getResponse()
-                 ->setBody('not_found');
-
-            return $this;
-        }
-
-        /**
-         * Format the address.
-         */
-        $formattedAddress = $pakjeGemakAddress->format('html');
-        $this->getResponse()
-             ->setBody($formattedAddress);
 
         return $this;
     }
@@ -652,17 +554,10 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             return $this->getCanUseDeliveryOptions();
         }
 
-        /** @var TIG_PostNL_Helper_DeliveryOptions $helper */
         $helper = Mage::helper('postnl/deliveryOptions');
 
-        /** @var Mage_Checkout_Model_Session $session */
-        $session = Mage::getSingleton('checkout/session');
-        $quote = $session->getQuote();
-
-        $canUseDeliveryOptions = false;
-        if ($helper->canUseDeliveryOptions($quote) && $helper->canUseDeliveryOptionsForCountry($quote)) {
-            $canUseDeliveryOptions = true;
-        }
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
+        $canUseDeliveryOptions = $helper->canUseDeliveryOptions($quote);
 
         $this->setCanUseDeliveryOptions($canUseDeliveryOptions);
         return $canUseDeliveryOptions;
@@ -692,9 +587,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         }
 
         $costs = $params['costs'];
-        /** @var Mage_Core_Helper_Data $coreHelper */
-        $coreHelper = Mage::helper('core');
-        $costs = $coreHelper->jsonDecode($costs);
+        $costs = Mage::helper('core')->jsonDecode($costs);
 
         /**
          * The costs object should contain an amount incl. VAT and excl. VAT.
@@ -711,9 +604,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         /**
          * Depending on tax calculation settings we need either the costs with or without VAT.
          */
-        /** @var Mage_Tax_Model_Config $taxConfig */
-        $taxConfig = Mage::getSingleton('tax/config');
-        if ($taxConfig->shippingPriceIncludesTax()) {
+        if (Mage::getSingleton('tax/config')->shippingPriceIncludesTax()) {
             $costs = $costs['incl'];
         } else {
             $costs = $costs['excl'];
@@ -806,19 +697,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
 
         $type  = $params['type'];
         $date  = $params['date'];
-        /** @var Mage_Core_Helper_Data $coreHelper */
-        $coreHelper = Mage::helper('core');
-        $costs = $coreHelper->jsonDecode($params['costs']);
-
-        $from = false;
-        if (!empty($params['from'])) {
-            $from = $params['from'];
-        }
-
-        $to = false;
-        if (!empty($params['to'])) {
-            $to = $params['to'];
-        }
+        $costs = Mage::helper('core')->jsonDecode($params['costs']);
 
         /**
          * The costs object should contain an amount incl. VAT and excl. VAT.
@@ -835,9 +714,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         /**
          * Depending on tax calculation settings we need either the costs with or without VAT.
          */
-        /** @var Mage_Tax_Model_Config $taxConfig */
-        $taxConfig = Mage::getSingleton('tax/config');
-        if ($taxConfig->shippingPriceIncludesTax()) {
+        if (Mage::getSingleton('tax/config')->shippingPriceIncludesTax()) {
             $costs = $costs['incl'];
         } else {
             $costs = $costs['excl'];
@@ -851,7 +728,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         $typeValidator  = new Zend_Validate_InArray(array('haystack' => $validTypes));
         $dateValidator  = new Zend_Validate_Date(array('format' => 'd-m-Y'));
         $costsValidator = new Zend_Validate_Float();
-        $timeValidator  = new Zend_Validate_Regex(array('pattern' => self::TIME_REGEX));
 
         /**
          * Validate the postcode.
@@ -898,14 +774,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             'costs' => $costs,
         );
 
-        if ($from && $timeValidator->isValid($from)) {
-            $data['from'] = $from;
-        }
-
-        if ($to && $timeValidator->isValid($to)) {
-            $data['to'] = $to;
-        }
-
         if (isset($params['number'])) {
             $phoneNumber = $this->_getSavePhonePostData($params);
             $data['number'] = $phoneNumber;
@@ -914,22 +782,9 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         if (!array_key_exists('address', $params)) {
             return $data;
         }
-        
-        if (in_array($type, array('PG', 'PGE'))) {
-            if (empty($params['locationCode']) || empty($params['retailNetworkId'])) {
-                throw new TIG_PostNL_Exception(
-                    $this->__('Location Code and Retail Network ID are required for post office locations.'),
-                    'POSTNL-0238'
-                );
-            }
-
-            $data['locationCode'] = Mage::helper('core')->stripTags(trim($params['locationCode'], '"'));
-            $data['retailNetworkId'] = Mage::helper('core')->stripTags(trim($params['retailNetworkId'], '"'));
-        }
 
         $address = $this->_validateAddress($params['address']);
         $data['address'] = $address;
-
 
         return $data;
     }
@@ -943,9 +798,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
      */
     protected function _validateAddress($addressData)
     {
-        /** @var Mage_Core_Helper_Data $coreHelper */
-        $coreHelper = Mage::helper('core');
-        $address = $coreHelper->jsonDecode($addressData);
+        $address = Mage::helper('core')->jsonDecode($addressData);
 
         if (!isset($address['City'])
             || !isset($address['Countrycode'])
@@ -953,11 +806,12 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             || !isset($address['HouseNr'])
             || !isset($address['Zipcode'])
             || !isset($address['Name'])
+            || !isset($address['PhoneNumber'])
         ) {
             throw new TIG_PostNL_Exception(
                 $this->__(
                      'Invalid argument supplied. A valid PakjeGemak address must contain at least a city, country '
-                     . 'code, street, house number and zipcode.'
+                     . 'code, street, house number, phonenumber and zipcode.'
                 ),
                 'POSTNL-0141'
             );
@@ -966,16 +820,18 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         $city        = $address['City'];
         $countryCode = $address['Countrycode'];
         $street      = $address['Street'];
-        $houseNumber = str_replace('-', '', $address['HouseNr']);
-        $postcode    = str_replace(' ', '', $address['Zipcode']);
+        $houseNumber = $address['HouseNr'];
+        $postcode    = $address['Zipcode'];
         $name        = $address['Name'];
 
         $countryCodes = Mage::getResourceModel('directory/country_collection')->getColumnValues('iso2_code');
 
-        $cityValidator        = new Zend_Validate_Regex(array('pattern' => TIG_PostNL_Helper_DeliveryOptions_Validator::CITY_NAME_REGEX));
+        $cityValidator        = new Zend_Validate_Regex(array('pattern' => self::CITY_NAME_REGEX));
         $countryCodeValidator = new Zend_Validate_InArray(array('haystack' => $countryCodes));
-        $streetValidator      = new Zend_Validate_Regex(array('pattern' => TIG_PostNL_Helper_DeliveryOptions_Validator::STREET_NAME_REGEX));
+        $streetValidator      = new Zend_Validate_Regex(array('pattern' => self::STREET_NAME_REGEX));
         $housenumberValidator = new Zend_Validate_Digits();
+        $postcodeValidator    = new Zend_Validate_PostCode('nl_NL');
+        $nameValidator        = new Zend_Validate_Regex(array('pattern' => self::NAME_REGEX));
 
         if (!$cityValidator->isValid($city)) {
             throw new TIG_PostNL_Exception(
@@ -1007,7 +863,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             );
         }
 
-        if (!empty($houseNumber) && !$housenumberValidator->isValid($houseNumber)) {
+        if (!$housenumberValidator->isValid($houseNumber)) {
             throw new TIG_PostNL_Exception(
                 $this->__(
                      'Invalid housenumber supplied: %s.',
@@ -1016,8 +872,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
                 'POSTNL-0145'
             );
         }
-
-        $postcodeValidator    = new Zend_Validate_PostCode('nl_' . $countryCode);
 
         if (!$postcodeValidator->isValid($postcode)) {
             throw new TIG_PostNL_Exception(
@@ -1029,11 +883,15 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             );
         }
 
-        /**
-         * Names are essentially impossible to build a regex for. Eventually you will run into a name that the regex
-         * thinks is 'wrong' and you will have offended someone. Better to just strip any tags to prevent XSS attacks.
-         */
-        $name = Mage::helper('core')->stripTags($name);
+        if (!$nameValidator->isValid($name)) {
+            throw new TIG_PostNL_Exception(
+                $this->__(
+                     'Invalid name supplied: %s.',
+                     $name
+                ),
+                'POSTNL-0154'
+            );
+        }
 
         $data = array(
             'city'        => $city,
@@ -1108,17 +966,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             );
         }
 
-        $country = $params['country'];
-        if ($country != 'NL' && $country != 'BE') {
-            throw new TIG_PostNL_Exception(
-                $this->__(
-                    'Invalid country supplied for GetDeliveryTimeframes request: %s',
-                    $country
-                ),
-                'POSTNL-0233'
-            );
-        }
-
         $postcode    = $params['postcode'];
         $housenumber = $params['housenumber'];
 
@@ -1132,7 +979,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         /**
          * Get validation classes for the postcode and housenumber values.
          */
-        $postcodeValidator    = new Zend_Validate_PostCode('nl_' . $country);
+        $postcodeValidator    = new Zend_Validate_PostCode('nl_NL');
         $housenumberValidator = new Zend_Validate_Digits();
 
         /**
@@ -1181,22 +1028,13 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
                 );
             }
         } else {
-            /** @var TIG_PostNL_Helper_Data $helper */
-            $helper = Mage::helper('postnl');
-            $timeZone = $helper->getStoreTimeZone(Mage::app()->getStore()->getId(), true);
-
-            $deliveryDate = new DateTime('now', $timeZone);
-            /** @var Mage_Core_Model_Date $dateModel */
-            $dateModel = Mage::getSingleton('core/date');
-            $deliveryDate->setTimestamp($dateModel->timestamp())
-                         ->add(new DateInterval('P1D'));
-            $deliveryDate = $deliveryDate->format('d-m-Y');
+            $tomorrow = strtotime('tomorrow', Mage::getModel('core/date')->timestamp());
+            $deliveryDate = date('d-m-Y', $tomorrow);
         }
 
         $data = array(
             'postcode'     => $postcode,
             'housenumber'  => $housenumber,
-            'country'      => $country,
             'deliveryDate' => $deliveryDate,
         );
 
@@ -1229,24 +1067,12 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
             );
         }
 
-        /** @var TIG_PostNL_Helper_Data $helper */
-        $helper = Mage::helper('postnl');
-        $timeZone = $helper->getStoreTimeZone(Mage::app()->getStore()->getId(), true);
-
         /**
          * Get the delivery date. If it was supplied, we need to validate it. Otherwise we take tomorrow as the delivery
          * day.
          */
         if (array_key_exists('deliveryDate', $postData)) {
             $deliveryDate = $postData['deliveryDate'];
-            $today = new DateTime('now', $timeZone);
-            $formattedToday = $today->format('d-m-Y');
-
-            if ($formattedToday == $deliveryDate) {
-                $deliveryDate = new DateTime($deliveryDate);
-                $deliveryDate->add(new DateInterval('P1D'));
-                $deliveryDate = $deliveryDate->format('d-m-Y');
-            }
 
             $validator = new Zend_Validate_Date(array('format' => 'd-m-Y'));
             if (!$validator->isValid($deliveryDate)) {
@@ -1259,51 +1085,31 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
                 );
             }
         } else {
-            $deliveryDate = new DateTime('now', $timeZone);
-            /** @var Mage_Core_Model_Date $dateModel */
-            $dateModel = Mage::getSingleton('core/date');
-            $deliveryDate->setTimestamp($dateModel->timestamp())
-                         ->add(new DateInterval('P1D'));
-            $deliveryDate = $deliveryDate->format('d-m-Y');
-        }
-
-        $country = $postData['country'];
-        if ($country != 'NL' && $country != 'BE') {
-            throw new TIG_PostNL_Exception(
-                $this->__(
-                    'Invalid country supplied for getNearestLocations request: %s',
-                    $country
-                ),
-                'POSTNL-0232'
-            );
+            $tomorrow = strtotime('tomorrow', Mage::getModel('core/date')->timestamp());
+            $deliveryDate = date('d-m-Y', $tomorrow);
         }
 
         /**
          * If a postcode was supplied, validate it and return it as an array.
          */
         if (array_key_exists('postcode', $postData)) {
-            $validatorHelper = Mage::helper('postnl/deliveryOptions_validator');
-
             $postcode = $postData['postcode'];
-            $postcode = strtoupper(str_replace(' ', '', $postcode));
-            $validatorHelper->validatePostcode($country, $postcode);
+            $postcode = strtoupper($postcode);
 
-            $street = $postData['street'];
-            $validatorHelper->validateStreet($street);
-
-            $housenumber = $postData['housenumber'];
-            $validatorHelper->validateHousenumber($housenumber);
-
-            $city = $postData['city'];
-            $validatorHelper->validateCity($city);
+            $validator = new Zend_Validate_PostCode('nl_NL');
+            if (!$validator->isValid($postcode)) {
+                throw new TIG_PostNL_Exception(
+                    $this->__(
+                        'Invalid postcode supplied for getNearestLocations request: %s',
+                        $postcode
+                    ),
+                    'POSTNL-0118'
+                );
+            }
 
             $data = array(
                 'postcode'     => $postcode,
-                'street'       => $street,
-                'country'      => $country,
                 'deliveryDate' => $deliveryDate,
-                'housenumber'  => $housenumber,
-                'city'         => $city,
             );
             return $data;
         }
@@ -1330,7 +1136,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
         $data = array(
             'lat'          => $postData['lat'],
             'long'         => $postData['long'],
-            'country'      => $country,
             'deliveryDate' => $deliveryDate,
         );
 
@@ -1408,26 +1213,8 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
                 );
             }
         } else {
-            /** @var TIG_PostNL_Helper_Data $helper */
-            $helper = Mage::helper('postnl');
-            $timeZone = $helper->getStoreTimeZone(Mage::app()->getStore()->getId(), true);
-            $deliveryDate = new DateTime('now', $timeZone);
-            /** @var Mage_Core_Model_Date $dateModel */
-            $dateModel = Mage::getSingleton('core/date');
-            $deliveryDate->setTimestamp($dateModel->timestamp())
-                         ->add(new DateInterval('P1D'));
-            $deliveryDate = $deliveryDate->format('d-m-Y');
-        }
-
-        $country = $postData['country'];
-        if ($country != 'NL' && $country != 'BE') {
-            throw new TIG_PostNL_Exception(
-                $this->__(
-                    'Invalid country supplied for getLocationsInArea request: %s',
-                    $country
-                ),
-                'POSTNL-0234'
-            );
+            $tomorrow = strtotime('tomorrow', Mage::getModel('core/date')->timestamp());
+            $deliveryDate = date('d-m-Y', $tomorrow);
         }
 
         $data = array(
@@ -1439,7 +1226,6 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
                 'lat'  => $southWestLat,
                 'long' => $southWestLng,
             ),
-            'country'      => $country,
             'deliveryDate' => $deliveryDate,
         );
 
@@ -1453,9 +1239,7 @@ class TIG_PostNL_DeliveryOptionsController extends Mage_Core_Controller_Front_Ac
      */
     protected function _updateShippingMethod()
     {
-        /** @var Mage_Checkout_Model_Type_Onepage $onepage */
-        $onepage = Mage::getSingleton('checkout/type_onepage');
-        $quote = $onepage->getQuote();
+        $quote = Mage::getSingleton('checkout/type_onepage')->getQuote();
 
         $shippingAddress = $quote->getShippingAddress();
         $shippingAddress->removeAllShippingRates();

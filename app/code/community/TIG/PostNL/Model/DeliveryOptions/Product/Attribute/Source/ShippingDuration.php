@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_DeliveryOptions_Product_Attribute_Source_ShippingDuration
@@ -54,12 +54,8 @@ class TIG_PostNL_Model_DeliveryOptions_Product_Attribute_Source_ShippingDuration
 
         $options = array(
             array(
-                'label' => $helper->__('Use configuration value'),
-                'value' => '-1'
-            ),
-            array(
-                'value' => 0,
-                'label' => '0 ' . $helper->__('days'),
+                'label' => $helper->__('Use config'),
+                'value' => ''
             ),
             array(
                 'value' => 1,
@@ -121,58 +117,5 @@ class TIG_PostNL_Model_DeliveryOptions_Product_Attribute_Source_ShippingDuration
 
         $this->_options = $options;
         return $options;
-    }
-
-    /**
-     * Retrieve flat column definition
-     *
-     * @return array
-     */
-    public function getFlatColums()
-    {
-        $attributeCode = $this->getAttribute()->getAttributeCode();
-        $column = array(
-            'default'   => null,
-            'extra'     => null,
-            'type'      => Varien_Db_Ddl_Table::TYPE_VARCHAR,
-            'is_null'   => true,
-            'comment'   => $attributeCode . ' column',
-            'unsigned'  => false,
-        );
-
-        $columnDefinition = array($attributeCode => $column);
-        return $columnDefinition;
-    }
-
-    /**
-     * Retrieve Indexes(s) for Flat
-     *
-     * @return array
-     */
-    public function getFlatIndexes()
-    {
-        $indexes = array();
-
-        $index = 'IDX_' . strtoupper($this->getAttribute()->getAttributeCode());
-        $indexes[$index] = array(
-            'type'      => 'index',
-            'fields'    => array($this->getAttribute()->getAttributeCode())
-        );
-
-        return $indexes;
-    }
-
-    /**
-     * Retrieve Select For Flat Attribute update
-     *
-     * @param int $store
-     * @return Varien_Db_Select|null
-     */
-    public function getFlatUpdateSelect($store)
-    {
-        $select = Mage::getResourceModel('eav/entity_attribute')
-                      ->getFlatUpdateSelect($this->getAttribute(), $store);
-
-        return $select;
     }
 }

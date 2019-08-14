@@ -25,18 +25,16 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@tig.nl so we can send you a copy immediately.
+ * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@tig.nl for more information.
+ * needs please contact servicedesk@totalinternetgroup.nl for more information.
  *
- * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
- *
- * @deprecated this class is no longer used as of v1.7.0.
  */
 class TIG_PostNL_Model_Admin_Logging_Observer
 {
@@ -49,16 +47,11 @@ class TIG_PostNL_Model_Admin_Logging_Observer
      * @return $this
      *
      * @see Enterprise_Logging_Model_Observer::controllerPostdispatch()
-     *
-     * @deprecated v1.7.0
      */
     public function controllerPostdispatch(Varien_Event_Observer $observer)
     {
-        trigger_error('This method is deprecated and may be removed in the future.', E_USER_NOTICE);
-
-        /** @noinspection PhpParamsInspection */
         $loggingObserverClassName = Mage::getConfig()->getModelClassName('enterprise_logging/observer');
-        $found                    = mageFindClassFile($loggingObserverClassName);
+        $found = mageFindClassFile($loggingObserverClassName);
 
         /**
          * If we can't find the model, there's nothing that can be logged.
@@ -67,9 +60,7 @@ class TIG_PostNL_Model_Admin_Logging_Observer
             return $this;
         }
 
-        /** @var Enterprise_Logging_Model_Observer $loggingObserver */
-        $loggingObserver = Mage::getModel('enterprise_logging/observer');
-        $loggingObserver->controllerPostdispatch($observer);
+        Mage::getModel('enterprise_logging/observer')->controllerPostdispatch($observer);
 
         return $this;
     }
