@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2016 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2017 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method TIG_PostNL_Model_Core_Label setLabelSize(string $value)
@@ -208,12 +208,12 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
             ),
             3 => array(
                 'x' => 0.5,
-                'y' => -127.1,
+                'y' => -128.5,
                 'w' => 105.3,
             ),
             4 => array(
                 'x' => 105.3,
-                'y' => -127.1,
+                'y' => -128.5,
                 'w' => 105.3,
             ),
         ),
@@ -245,6 +245,23 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
                 'w' => 204.2,
             ),
         ),
+    );
+
+    /**
+     * An array of label default page orientation L = landscape. P = portrait.
+     *
+     * @var array
+     */
+    protected $_labelDefaultOrientation = array(
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_LABEL             => 'P',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_RETURN_LABEL      => 'L',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_BUSPAKJE          => 'P',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_BUSPAKJEEXTRA     => 'P',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_LABEL_COMBI       => 'L',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_CODCARD           => 'P',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_CN23              => 'P',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_COMMERCIALINVOICE => 'P',
+        TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_CP71              => 'P',
     );
 
     /**
@@ -569,7 +586,7 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
 
             if (isset($matches[1]) && isset($matches[2]) && $matches[1] < $matches[2]) {
                 // combilabel detected
-                $pdf->insertTemplate($tempLabel, $this->pix2pt(400), $this->pix2pt(569), $this->pix2pt(400));
+                $pdf->insertTemplate($tempLabel, $this->pix2pt(400), $this->pix2pt(560), $this->pix2pt(400));
             } else {
                 $pdf->Rotate(90);
                 $pdf->insertTemplate($tempLabel, $this->pix2pt(-1037), $this->pix2pt(413), $this->pix2pt(538));
@@ -670,6 +687,13 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
          */
         $labelType = $label->getLabelType();
 
+        /**
+         * Get orientation bvased on $labelType returns L = Landscape, P = Portrait
+         */
+        $pageOrientation = (isset($this->_labelDefaultOrientation[$labelType]))
+            ? $this->_labelDefaultOrientation[$labelType]
+            : 'L';
+
         if ($labelType == TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_LABEL
             || $labelType == TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_LABEL_COMBI
             || $labelType == TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_BUSPAKJE
@@ -684,7 +708,7 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
             }
 
             if ($this->getLabelSize() == 'A4' && $this->getIsFirstLabel()) {
-                $pdf->addOrientedPage('L', 'A4');
+                $pdf->addOrientedPage($pageOrientation, 'A4');
                 $this->setIsFirstLabel(false);
                 if (!$this->getLabelCounter()) {
                     $this->resetLabelCounter();
@@ -694,7 +718,7 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
                     !$this->getLabelCounter() || $this->getLabelCounter() > 4
                 )
             ) {
-                $pdf->addOrientedPage('L', 'A4');
+                $pdf->addOrientedPage($pageOrientation, 'A4');
                 $this->resetLabelCounter();
             }
 
@@ -703,15 +727,15 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
              */
             if($this->getLabelSize() == 'A6') {
                 $this->setLabelCounter(3); //used to calculate the top left position
-                $pdf->addOrientedPage('L', 'A6');
+                $pdf->addOrientedPage($pageOrientation, 'A6');
             }
         } elseif ($labelType == TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_CODCARD) {
-            $pdf->addOrientedPage('P', array(156.65, 73.85));
+            $pdf->addOrientedPage($pageOrientation, array(156.65, 73.85));
         } elseif ($labelType == TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_CN23
             || $labelType == TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_COMMERCIALINVOICE
             || $labelType == TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_CODCARD
         ) {
-            $pdf->addOrientedPage('P', 'A4');
+            $pdf->addOrientedPage($pageOrientation, 'A4');
         }
 
         /**
@@ -744,9 +768,18 @@ class TIG_PostNL_Model_Core_Label extends Varien_Object
             case TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_BUSPAKJE:
             case TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_BUSPAKJEEXTRA:
             case TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_RETURN_LABEL:
-                $position = $this->_getLabelPosition($labelType, $this->getLabelCounter());
+                $pdf->Rotate(90);
 
-                $this->increaseLabelCounter();
+                $position['x'] = $this->pix2pt(-1037);
+                $position['y'] = $this->pix2pt(413);
+                $position['w'] = $this->pix2pt(538);
+
+                /**
+                 * increase the label counter to above 4. This will prompt the creation of a new page.
+                 */
+                $this->setLabelCounter(5);
+
+                $rotate = true;
                 break;
             case TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_CN23:
             case TIG_PostNL_Model_Core_Shipment_Label::LABEL_TYPE_COMMERCIALINVOICE:

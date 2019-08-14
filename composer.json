@@ -6,8 +6,8 @@
     "description": "The official PostNL extension for Magento",
     "authors": [
     {
-        "name": "TiG",
-        "email": "servicedesk@totalinternetgroup.nl"
+        "name": "TIG",
+        "email": "servicedesk@tig.nl"
     }
 ],
     "suggest": {

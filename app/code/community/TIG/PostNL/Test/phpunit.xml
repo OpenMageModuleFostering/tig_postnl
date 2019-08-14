@@ -4,13 +4,17 @@
          colors="true">
 
     <testsuites>
-        <testsuite>
-            <directory>.</directory>
+        <testsuite name="unit">
+            <directory>Unit</directory>
+            <exclude>Unit/Model/DeliveryOptions/Observer/GoMage</exclude>
+        </testsuite>
+        <testsuite name="gomage">
+            <directory>Unit/Model/DeliveryOptions/Observer/GoMage</directory>
         </testsuite>
     </testsuites>
 
     <filter>
-        <whitelist>
+        <whitelist addUncoveredFilesFromWhiteList="true">
             <directory>../../PostNL/Block</directory>
             <directory>../../PostNL/controllers</directory>
             <directory>../../PostNL/Helper</directory>
