@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
@@ -91,6 +91,16 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
      * XML path to community edition address lines configuration option
      */
     const XPATH_COMMUNITY_STREET_LINES = 'customer/address/street_lines';
+
+    /**
+     * Extension code of the PostcodeNL extension.
+     */
+    const POSTCODE_NL_EXTENSION_CODE = 'PostcodeNl_Api';
+
+    /**
+     * Xpath to the PostcodeNL extension's enabled field.
+     */
+    const XPATH_POSTCODE_NL_EXTENSION_ACTIVE = 'postcodenl_api/config/enabled';
 
     /**
      * @var null|string|int
@@ -296,6 +306,10 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
         }
 
         $timeout = (int) Mage::getStoreConfig(self::XPATH_POSTCODE_CHECK_TIMEOUT, $storeId);
+        if ($timeout < 1) {
+            $timeout = 3600; // 1 hour
+        }
+
         return $timeout;
     }
 
@@ -375,6 +389,11 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
             $storeId = Mage::app()->getStore()->getId();
         }
 
+        $postcodeNlExtensionActive = $this->checkPostcodeNlExtensionActive($storeId);
+        if (true === $postcodeNlExtensionActive) {
+            return false;
+        }
+
         $isPostnlEnabled = $this->isEnabled($storeId);
         if (!$isPostnlEnabled) {
             return false;
@@ -404,6 +423,32 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
 
         return $environmentAllowed;
     }
+
+    /**
+     * Check if the Postcode.NL extension is installed and active.
+     *
+     * @param int|null $storeId
+     *
+     * @return boolean
+     */
+    public function checkPostcodeNlExtensionActive($storeId = null)
+    {
+        if (!Mage::helper('core')->isModuleEnabled(self::POSTCODE_NL_EXTENSION_CODE)) {
+            return false;
+        }
+
+        if ($storeId === null) {
+            $storeId = Mage::app()->getStore()->getId();
+        }
+
+        $extensionEnabled = Mage::getStoreConfigFlag(self::XPATH_POSTCODE_NL_EXTENSION_ACTIVE, $storeId);
+        if (true === $extensionEnabled) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Get the configured line count for the current, or specified, config scope.
      *
@@ -495,13 +540,13 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
     /**
      * Logs a cendris request and response for debug purposes.
      *
-     * @param Zend_Soap_Client $client
+     * @param Soap>__getLastRe $client
      *
      * @return TIG_PostNL_Helper_Webservices
      *
      * @see Mage::log()
      */
-    public function logCendrisCall(Zend_Soap_Client $client)
+    public function logCendrisCall(SoapClient $client)
     {
         if (!$this->isLoggingEnabled()) {
             return $this;
@@ -509,8 +554,8 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
 
         $this->createLogDir();
 
-        $requestXml = $this->formatXml($client->getLastRequest());
-        $responseXML = $this->formatXml($client->getLastResponse());
+        $requestXml = $this->formatXml($client->__getLastRequest());
+        $responseXML = $this->formatXml($client->__getLastResponse());
 
         $logMessage = 'Request sent:'
                     . PHP_EOL
@@ -530,7 +575,7 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
      * Logs a cendris exception in the database and/or a log file
      *
      * @param Mage_Core_Exception|TIG_PostNL_Exception|SoapFault $exception
-     * @param Zend_Soap_Client|boolean $client
+     * @param SoapClient|boolean $client
      *
      * @return TIG_PostNL_Helper_Webservices
      *
@@ -544,9 +589,9 @@ class TIG_PostNL_Helper_AddressValidation extends TIG_PostNL_Helper_Data
 
         $logMessage = PHP_EOL . $exception->__toString();
 
-        if ($client && $client instanceof Zend_Soap_Client) {
-            $requestXml = $this->formatXml($client->getLastRequest());
-            $responseXML = $this->formatXml($client->getLastResponse());
+        if ($client && $client instanceof SoapClient) {
+            $requestXml = $this->formatXml($client->__getLastRequest());
+            $responseXML = $this->formatXml($client->__getLastResponse());
 
             $logMessage .= PHP_EOL
                          . 'Request sent:'

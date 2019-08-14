@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method TIG_PostNL_Model_DeliveryOptions_Cif setStoreId(int $value)
@@ -94,7 +94,7 @@ class TIG_PostNL_Model_DeliveryOptions_Cif extends TIG_PostNL_Model_Core_Cif
 
         $shippingDuration = Mage::helper('postnl/deliveryOptions')->getQuoteShippingDuration($quote);
 
-        $date = new DateTime(Mage::getSingleton('core/date')->gmtDate('d-m-Y H:i:s'));
+        $date = new DateTime('now', Mage::helper('postnl')->getStoreTimeZone($quote->getStoreId(), true));
         $date->setTimezone(new DateTimeZone('Europe/Berlin'));
 
         $soapParams = array(
@@ -158,7 +158,7 @@ class TIG_PostNL_Model_DeliveryOptions_Cif extends TIG_PostNL_Model_Core_Cif
         $maximumNumberOfDeliveryDays = (int) Mage::getStoreConfig(self::XPATH_DELIVERY_DAYS_NUMBER, $storeId);
         $maximumNumberOfDeliveryDays--;
 
-        $endDate = new DateTime($startDate);
+        $endDate = new DateTime($startDate, new DateTimeZone('UTC'));
         $endDate->add(new DateInterval("P{$maximumNumberOfDeliveryDays}D"));
 
         $soapParams = array(

@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Adminhtml_ConfigController extends TIG_PostNL_Controller_Adminhtml_Config
@@ -380,14 +380,39 @@ class TIG_PostNL_Adminhtml_ConfigController extends TIG_PostNL_Controller_Adminh
             Mage::dispatchEvent("admin_system_config_changed_section_{$section}",
                 array('website' => $website, 'store' => $store)
             );
-        }
-        catch (Mage_Core_Exception $e) {
+
+            $this->_saveState($this->getRequest()->getPost('config_state'));
+
+            /**
+             * Save the next wizard step as the current step the admin user is on.
+             */
+            $nextStep = $this->getRequest()->getPost('next_step_hash');
+            if ($nextStep) {
+                $this->_saveCurrentWizardStep($nextStep);
+            }
+
+            $this->getResponse()
+                 ->setBody('success');
+        } catch (TIG_PostNL_Exception $e) {
+            Mage::helper('postnl')->logException($e);
+
+            $this->getResponse()
+                 ->setBody(
+                     Mage::helper('postnl')->getSessionMessage($e->getCode(), 'error', $e->getMessage()
+                 )
+            );
+
+            return $this;
+        } catch (Mage_Core_Exception $e) {
+            Mage::helper('postnl')->logException($e);
+
             $this->getResponse()
                  ->setBody($e->getMessage());
 
             return $this;
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
+            Mage::helper('postnl')->logException($e);
+
             $this->getResponse()
                  ->setBody(
                      Mage::helper('adminhtml')->__('An error occurred while saving this configuration:')
@@ -398,14 +423,45 @@ class TIG_PostNL_Adminhtml_ConfigController extends TIG_PostNL_Controller_Adminh
             return $this;
         }
 
-        $this->_saveState($this->getRequest()->getPost('config_state'));
+        return $this;
+    }
 
-        /**
-         * Save the next wizard step as the current step the admin user is on.
-         */
-        $nextStep = $this->getRequest()->getPost('next_step_hash');
-        if ($nextStep) {
-            $this->_saveCurrentWizardStep($nextStep);
+    /**
+     * Saves the hidden state for a specified admin notification.
+     *
+     * @return $this
+     */
+    public function hideNotificationAction()
+    {
+        $notificationCode = $this->getRequest()->getParam('notification_code');
+        if (!$notificationCode) {
+            $this->getResponse()
+                 ->setBody('missing_code');
+
+            return $this;
+        }
+
+        $adminUser = Mage::getSingleton('admin/session')->getUser();
+        if (!$adminUser) {
+            $this->getResponse()
+                 ->setBody('error');
+
+            return $this;
+        }
+
+        try {
+            $extra = $adminUser->getExtra();
+
+            $extra['postnl']['hidden_notification'][$notificationCode] = true;
+
+            $adminUser->saveExtra($extra);
+        } catch (Exception $e) {
+            Mage::helper('postnl')->logException($e);
+
+            $this->getResponse()
+                 ->setBody('error');
+
+            return $this;
         }
 
         $this->getResponse()

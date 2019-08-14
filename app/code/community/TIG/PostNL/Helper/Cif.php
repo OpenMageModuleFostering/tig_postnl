@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
@@ -118,6 +118,7 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
         'CZ',
         'SE',
         'GR',
+        'MT',
     );
 
     /**
@@ -547,7 +548,7 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
      *
      * @return boolean
      *
-     * @see TIG_PostNL_Model_Core_Shipment->isPakjeGemakShipment();
+     * @see TIG_PostNL_Model_Core_Shipment::isPakjeGemakShipment();
      */
     public function isPakjeGemakShipment($shipment)
     {
@@ -572,7 +573,7 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
      *
      * @return boolean
      *
-     * @see TIG_PostNL_Model_Core_Shipment->isDutchShipment();
+     * @see TIG_PostNL_Model_Core_Shipment::isPakketautomaatShipment();
      */
     public function isPakketautomaatShipment($shipment)
     {
@@ -591,13 +592,38 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
     }
 
     /**
-     * Check if a given shipment is dutch
+     * Check if a given shipment is an evening delivery (avond) shipment.
+     *
+     * @param TIG_PostNL_Model_Core_Shipment|Mage_Sales_Model_Order_Shipment $shipment
+     *
+     * @return boolean
+     *
+     * @see TIG_PostNL_Model_Core_Shipment::isAvondShipment();
+     */
+    public function isAvondShipment($shipment)
+    {
+        $postnlShipmentClass = Mage::getConfig()->getModelClassName('postnl_core/shipment');
+        if ($shipment instanceof $postnlShipmentClass) {
+            /**
+             * @var TIG_PostNL_Model_Core_Shipment $shipment
+             */
+            return $shipment->isAvondShipment();
+        }
+
+        $tempPostnlShipment = Mage::getModel('postnl_core/shipment');
+        $tempPostnlShipment->setShipment($shipment);
+
+        return $tempPostnlShipment->isAvondShipment();
+    }
+
+    /**
+     * Check if a given shipment is dutch.
      *
      * @param TIG_PostNL_Model_Core_Shipment | Mage_Sales_Model_Order_Shipment $shipment
      *
      * @return boolean
      *
-     * @see TIG_PostNL_Model_Core_Shipment->isDutchSHipment();
+     * @see TIG_PostNL_Model_Core_Shipment::isDutchShipment();
      */
     public function isDutchShipment($shipment)
     {
@@ -622,7 +648,7 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
      *
      * @return boolean
      *
-     * @see TIG_PostNL_Model_Core_Shipment->isEuShipment();
+     * @see TIG_PostNL_Model_Core_Shipment::isEuShipment();
      */
     public function isEuShipment($shipment)
     {
@@ -647,7 +673,7 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
      *
      * @return boolean
      *
-     * @see TIG_PostNL_Model_Core_Shipment->isGlobalShipment();
+     * @see TIG_PostNL_Model_Core_Shipment::isGlobalShipment();
      */
     public function isGlobalShipment($shipment)
     {
@@ -672,7 +698,7 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
      *
      * @return boolean
      *
-     * @see TIG_PostNL_Model_Core_Shipment->isCod();
+     * @see TIG_PostNL_Model_Core_Shipment::isCod();
      */
     public function isCodShipment($shipment)
     {
@@ -1197,21 +1223,21 @@ class TIG_PostNL_Helper_Cif extends TIG_PostNL_Helper_Data
      *
      * N.B.: if file logging is enabled, the log will be forced
      *
-     * @param Zend_Soap_Client $client
+     * @param SoapClient $client
      *
      * @return $this
      *
      * @see Mage::log()
      *
      */
-    public function logCifCall($client)
+    public function logCifCall(SoapClient $client)
     {
         if (!$this->isLoggingEnabled()) {
             return $this;
         }
 
-        $requestXml = $this->formatXml($client->getLastRequest());
-        $responseXML = $this->formatXml($client->getLastResponse());
+        $requestXml = $this->formatXml($client->__getLastRequest());
+        $responseXML = $this->formatXml($client->__getLastResponse());
 
         $logMessage = "<<< REQUEST SENT >>>"
                     . PHP_EOL

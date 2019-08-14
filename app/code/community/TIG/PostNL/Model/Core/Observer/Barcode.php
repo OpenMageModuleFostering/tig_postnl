@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_Core_Observer_Barcode
@@ -100,12 +100,12 @@ class TIG_PostNL_Model_Core_Observer_Barcode
 
         if ($postnlOrder->getId()) {
             if ($postnlOrder->hasConfirmDate()) {
-                $confirmDate = new DateTime($postnlOrder->getConfirmDate());
+                $confirmDate = new DateTime($postnlOrder->getConfirmDate(), new DateTimeZone('UTC'));
                 $postnlShipment->setConfirmDate($confirmDate->format('Y-m-d H:i:s'));
             }
 
             if ($postnlOrder->hasDeliveryDate()) {
-                $deliveryDate = new DateTime($postnlOrder->getDeliveryDate());
+                $deliveryDate = new DateTime($postnlOrder->getDeliveryDate(), new DateTimeZone('UTC'));
                 $postnlShipment->setDeliveryDate($deliveryDate->format('Y-m-d H:i:s'));
             }
 

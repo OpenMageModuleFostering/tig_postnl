@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_AddressValidationController extends Mage_Core_Controller_Front_Action
@@ -166,7 +166,7 @@ class TIG_PostNL_AddressValidationController extends Mage_Core_Controller_Front_
          * Return the result as a json response
          */
         $this->getResponse()
-             ->setHeader('Content-type', 'application/x-json')
+             ->setHeader('Content-type', 'application/x-json', true)
              ->setBody($response);
 
         return $this;

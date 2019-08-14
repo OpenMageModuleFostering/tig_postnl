@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * Class containing all default methods used for CIF communication by this extension.
@@ -41,19 +41,21 @@
  * If you wish to add new methods you can extend this class or create a new class that extends
  * TIG_PostNL_Model_Core_Cif_Abstract.
  *
- * @method TIG_PostNL_Model_Core_Cif setStoreId(int $value)
- * @method boolean                   hasHSTariffAttribute()
  * @method string                    getHSTariffAttribute()
- * @method TIG_PostNL_Model_Core_Cif setHSTariffAttribute(string $value)
- * @method boolean                   hasCountryOfOriginAttribute()
  * @method string                    getCountryOfOriginAttribute()
- * @method TIG_PostNL_Model_Core_Cif setCountryOfOriginAttribute(string $value)
- * @method boolean                   hasCustomsValueAttribute()
  * @method string                    getCustomsValueAttribute()
- * @method TIG_PostNL_Model_Core_Cif setCustomsValueAttribute(string $value)
- * @method boolean                   hasCustomsDescriptionAttribute()
  * @method string                    getCustomsDescriptionAttribute()
+ *
+ * @method TIG_PostNL_Model_Core_Cif setStoreId(int $value)
+ * @method TIG_PostNL_Model_Core_Cif setHSTariffAttribute(string $value)
+ * @method TIG_PostNL_Model_Core_Cif setCountryOfOriginAttribute(string $value)
+ * @method TIG_PostNL_Model_Core_Cif setCustomsValueAttribute(string $value)
  * @method TIG_PostNL_Model_Core_Cif setCustomsDescriptionAttribute(string $value)
+ *
+ * @method boolean                   hasHSTariffAttribute()
+ * @method boolean                   hasCountryOfOriginAttribute()
+ * @method boolean                   hasCustomsValueAttribute()
+ * @method boolean                   hasCustomsDescriptionAttribute()
  */
 class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
 {
@@ -403,9 +405,7 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
             $soapParams
         );
 
-        if (!is_object($response)
-            || !isset($response->Barcode)
-        ) {
+        if (!isset($response->Barcode)) {
             throw new TIG_PostNL_Exception(
                 Mage::helper('postnl')->__('Invalid barcode response: %s', "\n" . var_export($response, true)),
                 'POSTNL-0054'
@@ -443,8 +443,7 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
             $soapParams
         );
 
-        if (!is_object($response)
-            || !isset($response->Shipments)
+        if (!isset($response->Shipments)
             || (!is_array($response->Shipments) && !is_object($response->Shipments))
         ) {
             throw new TIG_PostNL_Exception(
@@ -509,8 +508,7 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
             $soapParams
         );
 
-        if (!is_object($response)
-            || !isset($response->Shipments)
+        if (!isset($response->Shipments)
             || (!is_array($response->Shipments) && !is_object($response->Shipments))
         ) {
             throw new TIG_PostNL_Exception(
@@ -678,8 +676,7 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
             $soapParams
         );
 
-        if (!is_object($response)
-            || !isset($response->Labels)
+        if (!isset($response->Labels)
             || !is_object($response->Labels)
         ) {
             throw new TIG_PostNL_Exception(
@@ -770,8 +767,7 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
             $soapParams
         );
 
-        if (!is_object($response)
-            || !isset($response->Labels)
+        if (!isset($response->Labels)
             || !is_object($response->Labels)
         ) {
             throw new TIG_PostNL_Exception(
@@ -895,12 +891,15 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
         /**
          * Get and format this shipment's delivery date if available.
          */
-        $deliveryDate = $postnlShipment->getDeliveryDate();
-        if ($deliveryDate) {
-            $deliveryTime = new DateTime($deliveryDate);
-            $deliveryTime->setTimezone(new DateTimeZone('Europe/Berlin'));
+        $deliveryDate = null;
+        if (Mage::helper('postnl/deliveryOptions')->canUseDeliveryDays(false)) {
+            $deliveryDate = $postnlShipment->getDeliveryDate();
+            if ($deliveryDate) {
+                $deliveryTime = new DateTime($deliveryDate, new DateTimeZone('UTC'));
+                $deliveryTime->setTimezone(new DateTimeZone('Europe/Berlin'));
 
-            $deliveryDate = $deliveryTime->format('d-m-Y H:i:s');
+                $deliveryDate = $deliveryTime->format('d-m-Y H:i:s');
+            }
         }
 
         $reference = $this->_getReference($shipment);
@@ -953,7 +952,7 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
          * In the case of a multi-colli shipment this is only added to the first parcel.
          */
         if (($shipmentNumber === false || $shipmentNumber == 1)
-            && ($postnlShipment->hasExtraCover() || $postnlShipment->isCod())
+            && ($postnlShipment->isExtraCover() || $postnlShipment->isCod())
         ) {
             $shipmentData['Amounts'] = $this->_getAmount($postnlShipment, $shipment);
         }
@@ -1268,12 +1267,17 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
     protected function _getAmount(TIG_PostnL_Model_Core_Shipment $postnlShipment, $shipment = false)
     {
         $amount = array();
-        if (!$postnlShipment->hasExtraCover() && !$postnlShipment->isCod()) {
+        if (!$postnlShipment->isExtraCover() && !$postnlShipment->isCod()) {
             return $amount;
         }
 
-        if ($postnlShipment->hasExtraCover() && $postnlShipment->getExtraCoverAmount() > 0) {
-            $extraCover = number_format($postnlShipment->getExtraCoverAmount(), 2, '.', '');
+        if ($postnlShipment->isExtraCover()) {
+            $extraCoverAmount = $postnlShipment->getExtraCoverAmount();
+            if ($extraCoverAmount < 500) {
+                $extraCoverAmount = 500;
+            }
+
+            $extraCover = number_format($extraCoverAmount, 2, '.', '');
             $amount[] = array(
                 'AccountName'       => '',
                 'BIC'               => '',
@@ -1479,7 +1483,7 @@ class TIG_PostNL_Model_Core_Cif extends TIG_PostNL_Model_Core_Cif_Abstract
          */
         $items = $shipment->getItemsCollection();
         foreach ($items as $key => $item) {
-            if ($item->isDeleted()) {
+            if ($item->isDeleted() || $item->getOrderItem()->getProductType() == 'bundle') {
                 $items->removeItemByKey($key);
             }
         }

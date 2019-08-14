@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_Core_Observer_Cron
@@ -524,7 +524,7 @@ class TIG_PostNL_Model_Core_Observer_Cron
          * Get the date on which we can no longer requests return status updates for shipments.
          */
         $maxReturnDuration = Mage::getStoreConfig(self::XPATH_RETURN_EXPIRE_DAYS, Mage_Core_Model_App::ADMIN_STORE_ID);
-        $returnExpireDate  = new DateTime();
+        $returnExpireDate  = new DateTime('now', new DateTimeZone('UTC'));
         $returnExpireDate->sub(new DateInterval("P{$maxReturnDuration}D"));
 
         /**
@@ -677,7 +677,7 @@ class TIG_PostNL_Model_Core_Observer_Cron
              * Check if the shipment was confirmed more than a day ago
              */
             $confirmedAt = strtotime($postnlShipment->getConfirmedAt());
-            $yesterday = new DateTime();
+            $yesterday = new DateTime('now', new DateTimeZone('UTC'));
             $yesterday->setTimestamp(Mage::getModel('core/date')->gmtTimestamp())
                       ->sub(new DateInterval('P1D'));
 
@@ -739,7 +739,7 @@ class TIG_PostNL_Model_Core_Observer_Cron
             Mage_Core_Model_App::ADMIN_STORE_ID
         );
 
-        $expireTimestamp = new DateTime();
+        $expireTimestamp = new DateTime('now', new DateTimeZone('UTC'));
         $expireTimestamp->setTimestamp(Mage::getModel('core/date')->gmtTimestamp())
                         ->sub(new DateInterval("P{$confirmationExpireDays}D"));
 
@@ -864,13 +864,13 @@ class TIG_PostNL_Model_Core_Observer_Cron
         $postnlShipmentModelClass = Mage::getConfig()->getModelClassName('postnl_core/shipment');
         $confirmedStatus = $postnlShipmentModelClass::CONFIRM_STATUS_CONFIRMED;
 
-        $twentyMinutesAgo = new DateTime();
+        $twentyMinutesAgo = new DateTime('now', new DateTimeZone('UTC'));
         $twentyMinutesAgo->setTimestamp(Mage::getModel('core/date')->gmtTimestamp())
                          ->sub(new DateInterval('PT20M'));
 
         $twentyMinutesAgo = $twentyMinutesAgo->format('Y-m-d H:i:s');
 
-        $oneDayAgo = new DateTime();
+        $oneDayAgo = new DateTime('now', new DateTimeZone('UTC'));
         $oneDayAgo->setTimestamp(Mage::getModel('core/date')->gmtTimestamp())
                   ->sub(new DateInterval('P1DT20M'));
 
@@ -1041,7 +1041,7 @@ class TIG_PostNL_Model_Core_Observer_Cron
          * Get the date on which we can no longer requests return status updates for shipments.
          */
         $maxReturnDuration = Mage::getStoreConfig(self::XPATH_RETURN_EXPIRE_DAYS, Mage_Core_Model_App::ADMIN_STORE_ID);
-        $returnExpireDate  = new DateTime();
+        $returnExpireDate  = new DateTime('now', new DateTimeZone('UTC'));
         $returnExpireDate->sub(new DateInterval("P{$maxReturnDuration}D"));
 
         /**
@@ -1127,14 +1127,30 @@ class TIG_PostNL_Model_Core_Observer_Cron
 
         $helper->cronLog($helper->__('UpdateProductAttribute cron starting...'));
 
+        Mage::app()->getCacheInstance()->cleanType('config');
+
         $data = Mage::getStoreConfig(self::XPATH_PRODUCT_ATTRIBUTE_UPDATE_DATA, Mage_Core_Model_App::ADMIN_STORE_ID);
         if (!$data) {
-            $helper->cronLog($helper->__('No attribute data found. Exiting cron.'));
+            /**
+             * If all attributes have been processed, remove the cron from the schedule.
+             */
+            $helper->cronLog($helper->__('All attributes have been processed. Removing cron.'));
+
+            $this->_removeAttributeUpdateCron();
             return $this;
         }
 
         $data = unserialize($data);
         $currentAttributeData = current($data);
+        if (empty($currentAttributeData[0]) || empty($currentAttributeData[1])) {
+            /**
+             * If all attributes have been processed, remove the cron from the schedule.
+             */
+            $helper->cronLog($helper->__('All attributes have been processed. Removing cron.'));
+
+            $this->_removeAttributeUpdateCron();
+            return $this;
+        }
 
         $helper->cronLog(
             $helper->__('Updating product attribute data: %s', var_export($currentAttributeData, true))
@@ -1209,28 +1225,45 @@ class TIG_PostNL_Model_Core_Observer_Cron
                     'default',
                     Mage_Core_Model_App::ADMIN_STORE_ID
                 );
+
+                Mage::app()->getCacheInstance()->cleanType('config');
             } else {
                 /**
                  * If all attributes have been processed, remove the cron from the schedule.
                  */
                 $helper->cronLog($helper->__('All attributes have been processed. Removing cron.'));
 
-                Mage::getConfig()->saveConfig(
-                    self::XPATH_PRODUCT_ATTRIBUTE_UPDATE_DATA,
-                    null,
-                    'default',
-                    Mage_Core_Model_App::ADMIN_STORE_ID
-                );
-
-                Mage::getModel('core/config_data')
-                    ->load(self::UPDATE_PRODUCT_ATTRIBUTE_STRING_PATH, 'path')
-                    ->setValue(null)
-                    ->setPath(self::UPDATE_PRODUCT_ATTRIBUTE_STRING_PATH)
-                    ->save();
+                $this->_removeAttributeUpdateCron();
             }
         }
 
         $helper->cronLog($helper->__('UpdateProductAttribute cron has finished.'));
+
+        return $this;
+    }
+
+    /**
+     * Remove the updateProductAttribute cron.
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function _removeAttributeUpdateCron()
+    {
+        Mage::getConfig()->saveConfig(
+            self::XPATH_PRODUCT_ATTRIBUTE_UPDATE_DATA,
+            null,
+            'default',
+            Mage_Core_Model_App::ADMIN_STORE_ID
+        );
+
+        Mage::getModel('core/config_data')
+            ->load(self::UPDATE_PRODUCT_ATTRIBUTE_STRING_PATH, 'path')
+            ->setValue(null)
+            ->setPath(self::UPDATE_PRODUCT_ATTRIBUTE_STRING_PATH)
+            ->save();
+
+        Mage::app()->getCacheInstance()->cleanType('config');
 
         return $this;
     }
@@ -1246,6 +1279,8 @@ class TIG_PostNL_Model_Core_Observer_Cron
         $helper = Mage::helper('postnl');
 
         $helper->cronLog($helper->__('UpdateDateTimeZone cron starting...'));
+
+        Mage::app()->getCacheInstance()->cleanType('config');
 
         $data = Mage::getStoreConfig(
             TIG_PostNL_Model_Resource_Setup::XPATH_UPDATE_DATE_TIME_ZONE_DATA,
@@ -1298,6 +1333,8 @@ class TIG_PostNL_Model_Core_Observer_Cron
             'default',
             Mage_Core_Model_App::ADMIN_STORE_ID
         );
+
+        Mage::app()->getCacheInstance()->cleanType('config');
 
         $helper->cronLog($helper->__('UpdateDateTimeZone cron has finished.'));
 

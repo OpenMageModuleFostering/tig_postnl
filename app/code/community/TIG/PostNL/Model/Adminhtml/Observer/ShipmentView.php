@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * Observer to edit the shipment view
@@ -95,13 +95,13 @@ class TIG_PostNL_Model_Adminhtml_Observer_ShipmentView
         $this->addPostnlButtons($block, $shipment);
 
         /**
-         * Update the back button if the 'come_from' parameter is set.
+         * Update the back button if the 'come_from_postnl' parameter is set.
          */
-        if (Mage::app()->getRequest()->getParam('come_from')) {
-            $comeFrom = Mage::helper('core')->urlDecode(Mage::app()->getRequest()->getParam('come_from'));
-            $comeFromurl = $block->getUrl($comeFrom);
+        if (Mage::app()->getRequest()->getParam('come_from_postnl')) {
+            $comeFrom = Mage::helper('core')->urlDecode(Mage::app()->getRequest()->getParam('come_from_postnl'));
+            $comeFromUrl = $block->getUrl($comeFrom);
 
-            $block->updateButton('back', 'onclick', 'setLocation(\'' . $comeFromurl . '\')');
+            $block->updateButton('back', 'onclick', 'setLocation(\'' . $comeFromUrl . '\')');
         }
 
         return $this;

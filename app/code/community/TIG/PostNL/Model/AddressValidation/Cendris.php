@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_AddressValidation_Cendris extends TIG_PostNL_Model_AddressValidation_Cendris_Abstract
@@ -88,6 +88,10 @@ class TIG_PostNL_Model_AddressValidation_Cendris extends TIG_PostNL_Model_Addres
 
     /**
      * Get the Cendris password.
+     *
+     * TIG exception notice: The unencrypted form is used in line with the available communication options with the
+     * Cendris API at the moment of writing this. PostNL is aware of this and may change this at any time in the
+     * upcoming versions of their API.
      *
      * @return string
      */

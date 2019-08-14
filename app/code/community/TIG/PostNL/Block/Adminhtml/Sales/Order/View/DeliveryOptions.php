@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean hasOrder()
@@ -244,8 +244,9 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_View_DeliveryOptions extends TIG_Po
             $postnlOrder->getStoreId()
         );
         $storeTimezone = new DateTimeZone($storeTimezone);
+        $utcTimeZone = new DateTimeZone('UTC');
 
-        $storeStartTime = new DateTime($postnlOrder->getExpectedDeliveryTimeStart());
+        $storeStartTime = new DateTime($postnlOrder->getExpectedDeliveryTimeStart(), $utcTimeZone);
         $storeStartTime->setTimezone($storeTimezone);
         $info['delivery_time_start'] = $dateModel->date('H:i', $postnlOrder->getExpectedDeliveryTimeStart());
         $info['store_delivery_time_start'] = $storeStartTime->format('H:i');
@@ -258,7 +259,7 @@ class TIG_PostNL_Block_Adminhtml_Sales_Order_View_DeliveryOptions extends TIG_Po
             return $info;
         }
 
-        $storeEndTime = new DateTime($postnlOrder->getExpectedDeliveryTimeEnd());
+        $storeEndTime = new DateTime($postnlOrder->getExpectedDeliveryTimeEnd(), $utcTimeZone);
         $storeEndTime->setTimezone($storeTimezone);
         $info['delivery_time_end'] = $dateModel->date('H:i', $postnlOrder->getExpectedDeliveryTimeEnd());
         $info['store_delivery_time_end'] = $storeEndTime->format('H:i');

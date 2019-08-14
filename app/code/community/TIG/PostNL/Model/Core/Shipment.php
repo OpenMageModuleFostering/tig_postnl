@@ -1217,11 +1217,15 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
         $productCode = Mage::getStoreConfig($xpath, $storeId);
 
         /**
-         * If no default product code was found, try to use another product code that is available.
+         * Get a list of available product codes.
          */
-        if (!$productCode) {
-            $availableProductCodes = $this->getAllowedProductCodes();
+        $availableProductCodes = $this->getAllowedProductCodes();
 
+        /**
+         * If no default product code was found or the product code is not available, try to use another product code
+         * that is available.
+         */
+        if (!$productCode || !in_array($productCode, $availableProductCodes)) {
             /**
              * If no other product codes are available for this shipment type, throw an error.
              */
@@ -1653,6 +1657,10 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
         $shipmentAmount = $this->getShipmentBaseGrandTotal();
         $extraCoverAmount = ceil($shipmentAmount / 500) * 500;
 
+        if ($extraCoverAmount < 500) {
+            $extraCoverAmount = 500;
+        }
+
         return $extraCoverAmount;
     }
 
@@ -1822,7 +1830,7 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
          */
         $postnlOrder = $this->getPostnlOrder();
         if ($postnlOrder && $postnlOrder->hasConfirmDate()) {
-            $confirmDate = new DateTime($postnlOrder->getConfirmDate());
+            $confirmDate = new DateTime($postnlOrder->getConfirmDate(), new DateTimeZone('UTC'));
 
             $this->setData('confirm_date', $confirmDate->getTimestamp());
             return $this;
@@ -1836,7 +1844,7 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
         /**
          * Calculate the confirm based on the delivery date.
          */
-        $deliveryDate = new DateTime($deliveryDate);
+        $deliveryDate = new DateTime($deliveryDate, new DateTimeZone('UTC'));
 
         $confirmDate = clone $deliveryDate;
         $confirmDate = $confirmDate->sub(new DateInterval('P1D'));
@@ -2069,6 +2077,7 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
         /**
          * @var $barcodeModel TIG_PostNL_Model_Core_Shipment_Barcode
          */
+        /** @noinspection PhpParamsInspection */
         $barcodeModel = Mage::getConfig()->getModelClassName('postnl_core/shipment_barcode');
         $barcodes = $this->getBarcodes(false, $barcodeModel::BARCODE_TYPE_RETURN);
 
@@ -3964,6 +3973,7 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
         /**
          * Add a comment to the order and shipment that the track & trace email has been sent.
          */
+        /** @noinspection PhpUndefinedMethodInspection */
         $order->addStatusHistoryComment(
                   $helper->__(
                       'PostNL track & trace email has been sent for shipment #%s.',
@@ -4370,6 +4380,7 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
 
         /** @var Zend_Mail $mail */
         $mail = $transactionalEmail->getMail();
+        /** @noinspection PhpUndefinedClassInspection */
         $mail->createAttachment(
             $returnLabelObject->getData('label_pdf'),
             Zend_Mime::TYPE_OCTETSTREAM,
@@ -4384,12 +4395,13 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
             $emailInfo->getToEmails(),
             $emailInfo->getToNames(),
             $templateVariables->getData(),
-            $this->getStoreId()
+            $storeId
         );
 
         /**
          * Add a comment to the order and shipment that the return label email has been sent.
          */
+        /** @noinspection PhpUndefinedMethodInspection */
         $order->addStatusHistoryComment(
                   $helper->__(
                       'PostNL return label email has been sent for shipment #%s.',
@@ -5119,7 +5131,7 @@ class TIG_PostNL_Model_Core_Shipment extends Mage_Core_Model_Abstract
             /**
              * If this is an extra cover shipment and no extra cover amount has been set, set the default of 500 EUR.
              */
-            if ($this->isExtraCover() && !$this->hasExtraCoverAmount()) {
+            if ($this->isExtraCover() && $this->getExtraCoverAmount() < 200) {
                 $this->setExtraCoverAmount();
             }
         }

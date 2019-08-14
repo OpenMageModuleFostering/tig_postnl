@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  *
  * @method boolean                                  hasQuote()
@@ -185,7 +185,7 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
              * Get the date of the time frame and calculate the shipping day. The shipping day will be the day before
              * the delivery date, but may not be a sunday.
              */
-            $timeframeDate = new DateTime($timeframe->Date);
+            $timeframeDate = new DateTime($timeframe->Date, new DateTimeZone('UTC'));
             $deliveryDay   = (int) $timeframeDate->format('N');
 
             $shippingDate = clone $timeframeDate;
@@ -237,7 +237,7 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
      */
     protected function _validateSaturdayShipping($shippingDays, DateTime $shippingDate, DateTime $earliestShippingDate)
     {
-        $shippingDate->modify('last saturday');
+        $shippingDate->modify('last saturday ' . $shippingDate->format('H:i:s'));
         $shippingDay = 6;
 
         if (!in_array($shippingDay, $shippingDays)) {
@@ -319,6 +319,7 @@ class TIG_PostNL_Model_DeliveryOptions_Service extends Varien_Object
          */
         $postnlOrder = $this->getPostnlOrder();
         $postnlOrder->setQuoteId($quote->getId())
+                    ->setOrderId(null)
                     ->setIsActive(true)
                     ->setIsPakjeGemak(false)
                     ->setIsPakketautomaat(false)

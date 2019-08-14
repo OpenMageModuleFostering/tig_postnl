@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 abstract class TIG_PostNL_Model_ExtensionControl_Webservices_Abstract extends Varien_Object
@@ -105,11 +105,11 @@ abstract class TIG_PostNL_Model_ExtensionControl_Webservices_Abstract extends Va
             );
 
             /**
-             * try to create a new Zend_Soap_Client instance based on the supplied wsdl. If it fails, try again without
+             * try to create a new SoapClient instance based on the supplied wsdl. If it fails, try again without
              * using the wsdl cache.
              */
             try {
-                $client  = new Zend_Soap_Client(
+                $client  = new SoapClient(
                     $wsdl,
                     $soapOptions
                 );
@@ -119,7 +119,7 @@ abstract class TIG_PostNL_Model_ExtensionControl_Webservices_Abstract extends Va
                  */
                 $soapOptions['cache_wsdl'] = WSDL_CACHE_NONE;
 
-                $client  = new Zend_Soap_Client(
+                $client  = new SoapClient(
                     $wsdl,
                     $soapOptions
                 );

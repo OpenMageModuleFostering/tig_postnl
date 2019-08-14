@@ -33,7 +33,7 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
+ * @copyright   Copyright (c) 2015 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 
@@ -148,13 +148,13 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
     /**
      * Logs a webservice request and response for debug purposes.
      *
-     * @param Zend_Soap_Client $client
+     * @param SoapClient $client
      *
      * @return $this
      *
      * @see Mage::log()
      */
-    public function logWebserviceCall($client)
+    public function logWebserviceCall(SoapClient $client)
     {
         if (!$this->isLoggingEnabled()) {
             return $this;
@@ -162,8 +162,8 @@ class TIG_PostNL_Helper_Webservices extends TIG_PostNL_Helper_Data
 
         $this->createLogDir();
 
-        $requestXml = $this->formatXml($client->getLastRequest());
-        $responseXML = $this->formatXml($client->getLastResponse());
+        $requestXml = $this->formatXml($client->__getLastRequest());
+        $responseXML = $this->formatXml($client->__getLastResponse());
 
         $logMessage = "Request sent:\n"
                     . $requestXml
