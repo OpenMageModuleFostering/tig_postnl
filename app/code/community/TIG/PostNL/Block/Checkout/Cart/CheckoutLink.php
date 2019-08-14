@@ -25,54 +25,120 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@totalinternetgroup.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2013 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
+ * @copyright   Copyright (c) 2016 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
+ *
+ * @method boolean                                     hasPublicWebshopId()
+ * @method boolean                                     hasDoLoginCheck()
+ * @method boolean                                     hasButtonTestBaseUrl()
+ * @method boolean                                     hasButtonLiveBaseUrl()
+ *
+ * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setPublicWebshopId(string $value)
+ * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setDoLoginCheck(boolean $value)
+ * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setButtonTestBaseUrl(string $value)
+ * @method TIG_PostNL_Block_Checkout_Cart_CheckoutLink setButtonLiveBaseUrl(string $value)
  */
-class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends Mage_Core_Block_Template
+class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends TIG_PostNL_Block_Core_Template
 {
     /**
-     * Base URLs of the checkout button
+     * @var string
      */
-    const CHECKOUT_BUTTON_TEST_BASE_URL = 'https://tppcb-sandbox.e-id.nl/Button/Checkout';
-    const CHECKOUT_BUTTON_LIVE_BASE_URL = 'https://checkout.postnl.nl/Button/Checkout';
+    protected $_eventPrefix = 'postnl_checkout_cart_checkoutlink';
 
     /**
-     * XML path to public webshop ID setting
+     * Base URLs of the checkout button.
      */
-    const XML_PATH_PUBLIC_WEBSHOP_ID = 'postnl/cif/public_webshop_id';
+    const CHECKOUT_BUTTON_TEST_BASE_URL_XPATH = 'postnl/checkout/checkout_button_test_base_url';
+    const CHECKOUT_BUTTON_LIVE_BASE_URL_XPATH = 'postnl/checkout/checkout_button_live_base_url';
 
     /**
-     * XML path to 'hide_button_if_disallowed' setting
+     * Xpath to public webshop ID setting.
      */
-    const XML_PATH_HIDE_BUTTON_IF_DISALLOWED = 'postnl/checkout/hide_button_if_disallowed';
+    const XPATH_PUBLIC_WEBSHOP_ID = 'postnl/cif/public_webshop_id';
 
     /**
-     * XML path to the 'instruction_cms_page' setting
+     * Xpath to the 'instruction_cms_page' setting.
      */
-    const XML_PATH_INSTRUCTION_CMS_PAGE = 'postnl/checkout/instruction_cms_page';
+    const XPATH_INSTRUCTION_CMS_PAGE = 'postnl/checkout/instruction_cms_page';
 
     /**
-     * Gets the checkout URL
+     * Xpath to 'show exclusively for mijnpakket users' setting.
+     */
+    const XPATH_SHOW_EXCLUSIVELY_FOR_MIJNPAKKET_USERS = 'postnl/checkout/show_exclusively_for_mijnpakket_users';
+
+    /**
+     * Gets the checkout URL.
      *
      * @return string
      */
     public function getCheckoutUrl()
     {
-        $url = Mage::helper('checkout/url')->getCheckoutUrl();
+        /** @var Mage_Checkout_Helper_Url $helper */
+        $helper = Mage::helper('checkout/url');
+        $url = $helper->getCheckoutUrl();
 
         return $url;
     }
 
     /**
-     * Check if the button should be disabled
+     * @return string
+     */
+    public function getButtonTestBaseUrl()
+    {
+        if ($this->hasButtonTestBaseUrl()) {
+            return $this->_getData('button_test_base_url');
+        }
+
+        $baseUrl = Mage::getStoreConfig(self::CHECKOUT_BUTTON_TEST_BASE_URL_XPATH);
+
+        $this->setButtonTestBaseUrl($baseUrl);
+        return $baseUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getButtonLiveBaseUrl()
+    {
+        if ($this->hasButtonLiveBaseUrl()) {
+            return $this->_getData('button_live_base_url');
+        }
+
+        $baseUrl = Mage::getStoreConfig(self::CHECKOUT_BUTTON_LIVE_BASE_URL_XPATH);
+
+        $this->setButtonLiveBaseUrl($baseUrl);
+        return $baseUrl;
+    }
+
+    /**
+     * Returns whether or not we need to check if the current customer is logged in with mijnpakket before showing
+     * PostNL Checkout.
+     *
+     * @return bool
+     */
+    public function getDoLoginCheck()
+    {
+        if ($this->hasDoLoginCheck()) {
+            return $this->_getData('do_login_check');
+        }
+
+        $storeId = Mage::app()->getStore()->getId();
+        $doLoginCheck = Mage::getStoreConfigFlag(self::XPATH_SHOW_EXCLUSIVELY_FOR_MIJNPAKKET_USERS, $storeId);
+
+        $this->setDoLoginCheck($doLoginCheck);
+        return $doLoginCheck;
+    }
+
+    /**
+     * Check if the button should be disabled.
      *
      * @return boolean
      */
@@ -86,14 +152,17 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends Mage_Core_Block_Templa
     }
 
     /**
-     * Check if the button should be displayed
+     * Check if the button should be displayed.
      *
      * @return boolean
      */
     public function canUsePostnlCheckout()
     {
-        $quote = Mage::getSingleton('checkout/session')->getQuote();
+        /** @var Mage_Checkout_Model_Session $session */
+        $session = Mage::getSingleton('checkout/session');
+        $quote = $session->getQuote();
 
+        /** @var TIG_PostNL_Helper_Checkout $helper */
         $helper = Mage::helper('postnl/checkout');
         $canUseCheckout = $helper->canUsePostnlCheckout($quote);
 
@@ -101,9 +170,9 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends Mage_Core_Block_Templa
          * If Checkout is not available, log the reason why for debugging purposes
          */
         if (!$canUseCheckout && Mage::registry('postnl_checkout_logged') === null) {
-            $configErrors = Mage::registry('postnl_is_configured_checkout_errors');
+            $configErrors = Mage::registry('postnl_checkout_is_configured_errors');
             if (is_null($configErrors)) {
-                $configErrors = Mage::registry('postnl_enabled_checkout_errors');
+                $configErrors = Mage::registry('postnl_checkout_is_enabled_errors');
             }
 
             if (is_null($configErrors)) {
@@ -124,7 +193,7 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends Mage_Core_Block_Templa
     }
 
     /**
-     * Gets this webshop's public ID
+     * Gets this webshop's public ID.
      *
      * @return string
      */
@@ -134,14 +203,14 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends Mage_Core_Block_Templa
             return $this->getData('public_webshop_id');
         }
 
-        $webshopId = Mage::getStoreConfig(self::XML_PATH_PUBLIC_WEBSHOP_ID, Mage::app()->getStore()->getId());
+        $webshopId = Mage::getStoreConfig(self::XPATH_PUBLIC_WEBSHOP_ID, Mage::app()->getStore()->getId());
 
         $this->setPublicWebshopId($webshopId);
         return $webshopId;
     }
 
     /**
-     * Gets the checkout button src attribute
+     * Gets the checkout button src attribute.
      *
      * @param boolean $forceDisabled
      *
@@ -149,10 +218,12 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends Mage_Core_Block_Templa
      */
     public function getSrc($forceDisabled = false)
     {
-        if (Mage::helper('postnl/checkout')->isTestMode()) {
-            $baseUrl = self::CHECKOUT_BUTTON_TEST_BASE_URL;
+        /** @var TIG_PostNL_Helper_Checkout $helper */
+        $helper = Mage::helper('postnl/checkout');
+        if ($helper->isTestMode()) {
+            $baseUrl = $this->getButtonTestBaseUrl();
         } else {
-            $baseUrl = self::CHECKOUT_BUTTON_LIVE_BASE_URL;
+            $baseUrl = $this->getButtonLiveBaseUrl();;
         }
 
         $webshopId = $this->getPublicWebshopId();
@@ -170,34 +241,37 @@ class TIG_PostNL_Block_Checkout_Cart_CheckoutLink extends Mage_Core_Block_Templa
     }
 
     /**
-     * Gets the URL of a CMS page containing instructions on how to use PostNL Checkout
+     * Gets the URL of a CMS page containing instructions on how to use PostNL Checkout.
      *
      * @return boolean|string
      */
     public function getInstructionUrl()
     {
-        $instructionPage = Mage::getStoreConfig(self::XML_PATH_INSTRUCTION_CMS_PAGE, Mage::app()->getStore()->getId());
+        $instructionPage = Mage::getStoreConfig(self::XPATH_INSTRUCTION_CMS_PAGE, Mage::app()->getStore()->getId());
         if (!$instructionPage) {
             return false;
         }
 
-        $pageUrl = Mage::helper('cms/page')->getPageUrl($instructionPage);
+        /** @var Mage_Cms_Helper_Page $helper */
+        $helper = Mage::helper('cms/page');
+        $pageUrl = $helper->getPageUrl($instructionPage);
         return $pageUrl;
     }
 
     /**
-     * Returns the block's html. Checks if the 'use_postnl_checkout' param is set. If not, returns and empty string
+     * Returns the block's html. Checks if the 'use_postnl_checkout' param is set. Otherwise returns an empty string.
      *
      * @return string
      */
     protected function _toHtml()
     {
+        /** @var TIG_PostNL_Helper_Checkout $helper */
         $helper = Mage::helper('postnl/checkout');
         if (!$helper->isCheckoutActive() && Mage::registry('postnl_checkout_logged') === null) {
             /**
              * If Checkout is not available, log the reason why for debugging purposes
              */
-            $configErrors = Mage::registry('postnl_enabled_checkout_errors');
+            $configErrors = Mage::registry('postnl_checkout_is_enabled_errors');
 
             if (is_null($configErrors)) {
                 return '';

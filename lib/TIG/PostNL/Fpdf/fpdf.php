@@ -73,6 +73,11 @@ var $PDFVersion;         // PDF version number
 *                               Public methods                                 *
 *                                                                              *
 *******************************************************************************/
+function __construct($orientation='P', $unit='mm', $size='A4')
+{
+	$this->FPDF($orientation, $unit, $size);
+}
+
 function FPDF($orientation='P', $unit='mm', $size='A4')
 {
 	// Some checks
@@ -1017,7 +1022,7 @@ function Output($name='', $dest='')
 			{
 				// We send to a browser
 				header('Content-Type: application/pdf');
-				header('Content-Disposition: inline; filename="'.$name.'"');
+				header('Content-Disposition: inline; filename=test.pdf');
 				header('Cache-Control: private, max-age=0, must-revalidate');
 				header('Pragma: public');
 			}
