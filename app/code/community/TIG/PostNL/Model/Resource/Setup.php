@@ -25,15 +25,15 @@
  * It is available through the world-wide-web at this URL:
  * http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to servicedesk@totalinternetgroup.nl so we can send you a copy immediately.
+ * to servicedesk@tig.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future. If you wish to customize this module for your
- * needs please contact servicedesk@totalinternetgroup.nl for more information.
+ * needs please contact servicedesk@tig.nl for more information.
  *
- * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.totalinternetgroup.nl)
+ * @copyright   Copyright (c) 2014 Total Internet Group B.V. (http://www.tig.nl)
  * @license     http://creativecommons.org/licenses/by-nc-nd/3.0/nl/deed.en_US
  */
 class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
@@ -49,6 +49,12 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
      */
     const UPDATE_STATISTICS_CRON_STRING_PATH = 'crontab/jobs/postnl_update_statistics/schedule/cron_expr';
     const UPDATE_STATISTICS_CRON_MODEL_PATH  = 'crontab/jobs/postnl_update_statistics/run/model';
+
+    /**
+     * Cron expression and cron model definitions for updating product attributes.
+     */
+    const UPDATE_PRODUCT_ATTRIBUTE_STRING_PATH = 'crontab/jobs/postnl_update_product_attribute/schedule/cron_expr';
+    const UPDATE_PRODUCT_ATTRIBUTE_MODEL_PATH  = 'crontab/jobs/postnl_update_product_attribute/run/model';
 
     /**
      * XML path to the support tab_expanded setting
@@ -70,7 +76,7 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
     /**
      * Xpath to supported options configuration setting
      */
-    const XPATH_SUPPORTED_PRODUCT_OPTIONS = 'postnl/cif_product_options/supported_product_options';
+    const XPATH_SUPPORTED_PRODUCT_OPTIONS = 'postnl/grid/supported_product_options';
 
     /**
      * Xpath to the item columns setting.
@@ -78,9 +84,25 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
     const XPATH_PACKING_SLIP_ITEM_COLUMNS = 'postnl/packing_slip/item_columns';
 
     /**
+     * Xpath to the product attribute update data used by the product attribute update cron.
+     */
+    const XPATH_PRODUCT_ATTRIBUTE_UPDATE_DATA = 'postnl/general/product_attribute_update_data';
+
+    /**
      * Minimum server memory required by the PostNL extension in bytes.
      */
     const MIN_SERVER_MEMORY = 268435456; //256MB
+
+    /**
+     * Error codes that might be triggered during setup.
+     */
+    const SUCCESSFUL_UPDATE_ERROR_CODE           = 'POSTNL-0083';
+    const SHIPPING_STATUS_CRON_ERROR_CODE        = 'POSTNL-0084';
+    const UPDATE_STATISTICS_CRON_ERROR_CODE      = 'POSTNL-0085';
+    const UNSUPPORTED_MAGENTO_VERSION_ERROR_CODE = 'POSTNL-0086';
+    const SUCCESSFUL_INSTALL_ERROR_CODE          = 'POSTNL-0156';
+    const MEMORY_LIMIT_ERROR_CODE                = 'POSTNL-0175';
+    const UPDATE_PRODUCT_ATTRIBUTE_ERROR_CODE    = 'POSTNL-0197';
 
     /**
      * callAfterApplyAllUpdates flag. Causes applyAfterUpdates() to be called.
@@ -221,24 +243,25 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
 
         $inbox = Mage::getModel('postnl_admin/inbox');
         if ($dbVer) {
-            $title = '[POSTNL-0083] ' . $helper->__(
-                'PostNL extension has been successfully updated to version v%s.',
-                $configVer
-            );
+            $title = '['
+                   . self::SUCCESSFUL_UPDATE_ERROR_CODE
+                   . '] '
+                   . $helper->__('PostNL extension has been successfully updated to version v%s.', $configVer);
 
-            $url = 'http://kb.totalinternetgroup.nl/topic/31921907';
+            $url = $helper->getErrorUrl(self::SUCCESSFUL_UPDATE_ERROR_CODE );
         } else {
-            $title = '[POSTNL-0156] ' . $helper->__(
-                'The PostNL extension v%s has been successfully installed.',
-                $configVer
-            );
-            $url = '';
+            $title = '['
+                   . self::SUCCESSFUL_INSTALL_ERROR_CODE
+                   . '] '
+                   . $helper->__('The PostNL extension v%s has been successfully installed.', $configVer);
+
+            $url = $helper->getErrorUrl(self::SUCCESSFUL_INSTALL_ERROR_CODE );
         }
 
         $message = $helper->__(
             'You can read the full changelog in the <a href="%s" target="_blank" title="TIG knowledgebase">TIG ' .
             'knowledgebase</a>.',
-            'http://kb.totalinternetgroup.nl/topic/38584893/'
+            $helper->getChangelogUrl()
         );
 
         $inbox->addNotice($title, $message, $url, true)
@@ -259,17 +282,17 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
         /**
          * Generate semi-random values for the cron expression.
          */
-        $cronMorningHour   = mt_rand(10, 12);
-        $cronMorningHour  += Mage::getModel('core/date')->getGmtOffset('hours');
-
-        $cronAfternoonHour = $cronMorningHour + 4; //4 hours after the morning update
         $cronMinute        = mt_rand(0, 59);
 
+        $cronNightHour     = mt_rand(1, 3);
+        $cronMorningHour   = $cronNightHour + 9; //9 hours after the night update
+        $cronAfternoonHour = $cronMorningHour + 4; //4 hours after the morning update
+
         /**
-         * Generate a cron expr that runs on a specified minute on a specified hour between 10 and 12 AM, and between 14
-         * and 16 PM.
+         * Generate a cron expr that runs on a specified minute on a specified hour between 1 and 3 AM, between 10 and
+         * 12 AM, and between 14 and 16 PM.
          */
-        $cronExpr = "{$cronMinute} {$cronMorningHour},{$cronAfternoonHour} * * *";
+        $cronExpr = "{$cronMinute} {$cronNightHour},{$cronMorningHour},{$cronAfternoonHour} * * *";
 
         /**
          * Store the cron expression in core_config_data.
@@ -288,7 +311,7 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
         } catch (Exception $e) {
             throw new TIG_PostNL_Exception(
                 Mage::helper('postnl')->__('Unable to save shipping_status cron expression: %s', $cronExpr),
-                'POSTNL-0084',
+                self::SHIPPING_STATUS_CRON_ERROR_CODE,
                 $e
             );
         }
@@ -335,7 +358,7 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
         } catch (Exception $e) {
             throw new TIG_PostNL_Exception(
                 Mage::helper('postnl')->__('Unable to save update_statistics cron expression: %s', $cronExpr),
-                'POSTNL-0085',
+                self::UPDATE_STATISTICS_CRON_ERROR_CODE,
                 $e
             );
         }
@@ -364,21 +387,7 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
 
         $supportedVersions = Mage::getConfig()->getNode('tig/compatibility/postnl/' . $edition);
         if ($supportedVersions === false) {
-            $title = '[POSTNL-0086] '
-                     . $helper->__('The PostNL extension is not compatible with your Magento version!');
-
-            $message = $helper->__(
-                'This may cause unexpected behaviour. You may use the PostNL extension on unsupported versions of ' .
-                'Magento at your own risk.'
-            );
-
-            $inbox = Mage::getModel('postnl_admin/inbox');
-            $inbox->addCritical(
-                $title,
-                $message,
-                'http://kb.totalinternetgroup.nl/topic/31925577',
-                true
-            )->save();
+            $this->_addUnsupportedVersionMessage();
 
             Mage::register('postnl_version_compatibility_checked', true);
             return $this;
@@ -391,28 +400,45 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
         $installedMagentoVersion = $installedMagentoVersionInfo['major'] . '.' . $installedMagentoVersionInfo['minor'];
 
         if (!in_array($installedMagentoVersion, $supportedVersionArray)) {
-            $title = '[POSTNL-0086] '
-                   . $helper->__('The PostNL extension is not compatible with your Magento version!');
-
-            $message = $helper->__(
-                'This may cause unexpected behaviour. You may use the PostNL extension on unsupported versions of ' .
-                'Magento at your own risk.'
-            );
-
-            $inbox = Mage::getModel('postnl_admin/inbox');
-            $inbox->addCritical(
-                $title,
-                $message,
-                'http://kb.totalinternetgroup.nl/topic/31925577',
-                true
-            )->save();
+            $this->_addUnsupportedVersionMessage();
 
             Mage::register('postnl_version_compatibility_checked', true);
             return $this;
         }
 
-
         Mage::register('postnl_version_compatibility_checked', true);
+        return $this;
+    }
+
+    /**
+     * @return $this
+     *
+     * @throws Exception
+     */
+    protected function _addUnsupportedVersionMessage()
+    {
+        $helper = Mage::helper('postnl');
+
+        $title = '['
+               . self::UNSUPPORTED_MAGENTO_VERSION_ERROR_CODE
+               . '] '
+               . $helper->__('The PostNL extension is not compatible with your Magento version!');
+
+        $message = $helper->__(
+            'This may cause unexpected behaviour. You may use the PostNL extension on unsupported versions of ' .
+            'Magento at your own risk.'
+        );
+
+        $url = $helper->getErrorUrl(self::UNSUPPORTED_MAGENTO_VERSION_ERROR_CODE );
+
+        $inbox = Mage::getModel('postnl_admin/inbox');
+        $inbox->addCritical(
+            $title,
+            $message,
+            $url,
+            true
+        )->save();
+
         return $this;
     }
 
@@ -432,7 +458,9 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
 
         if ($helper->getMemoryLimit() < self::MIN_SERVER_MEMORY) {
             $memoryMb = self::MIN_SERVER_MEMORY / 1024 / 1024;
-            $title = '[POSTNL-0175] '
+            $title = '['
+                   . self::MEMORY_LIMIT_ERROR_CODE
+                   . '] '
                    . $helper->__("The server's memory limit is less than %.0fMB.", $memoryMb);
 
             $message = $helper->__(
@@ -445,7 +473,7 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
             $inbox->addCritical(
                 $title,
                 $message,
-                '',
+                $helper->getErrorUrl(self::MEMORY_LIMIT_ERROR_CODE),
                 true
             )->save();
         }
@@ -625,6 +653,9 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
      * @param boolean $removeOldValue
      *
      * @return $this
+     *
+     * @deprecated v1.4.1 This method has been superseded by the
+     *                    TIG_PostNL_Model_Resource_Setup::moveConfigSettingInDb() method.
      */
     public function moveConfigSetting($fromXpath, $toXpath, $removeOldValue = true)
     {
@@ -681,8 +712,12 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
      * @param string  $scope
      * @param int     $scopeId
      * @param boolean $removeOldValue
+     * @param boolean $defaultValue
      *
      * @return $this
+     *
+     * @deprecated v1.4.1 This method has been superseded by the
+     *                    TIG_PostNL_Model_Resource_Setup::moveConfigSettingInDb() method.
      */
     public function moveConfigSettingForScope($fromXpath, $toXpath, $scope = 'default', $scopeId = 0,
                                              $removeOldValue = true, $defaultValue = false)
@@ -1046,6 +1081,238 @@ class TIG_PostNL_Model_Resource_Setup extends Mage_Catalog_Model_Resource_Setup
          */
         Mage::getSingleton('catalog/product_action')
             ->updateAttributes($productCollection->getAllIds(), $attributesData, Mage_Core_Model_App::ADMIN_STORE_ID);
+
+        return $this;
+    }
+
+    /**
+     * Set the product attribute update cron's cron expression and save the necessary attribute data.
+     *
+     * @param array $data
+     *
+     * @return $this
+     * @throws TIG_PostNL_Exception
+     */
+    public function setProductAttributeUpdateCron($data)
+    {
+        /**
+         * Check if any existing data is present.
+         */
+        $existingData = Mage::getStoreConfig(
+            self::XPATH_PRODUCT_ATTRIBUTE_UPDATE_DATA,
+            Mage_Core_Model_App::ADMIN_STORE_ID
+        );
+
+        /**
+         * Merge the existing data with the new data.
+         */
+        if ($existingData) {
+            $data = array_merge($data, unserialize($existingData));
+        }
+
+        /**
+         * Serialize the attribute data for storage in the database.
+         */
+        $serializedData = serialize($data);
+
+        /**
+         * Save the attribute data.
+         */
+        Mage::getConfig()->saveConfig(
+            self::XPATH_PRODUCT_ATTRIBUTE_UPDATE_DATA,
+            $serializedData,
+            'default',
+            Mage_Core_Model_App::ADMIN_STORE_ID
+        );
+
+        $cronExpr = "*/5 * * * *";
+
+        /**
+         * Store the cron expression in core_config_data.
+         */
+        try {
+            Mage::getModel('core/config_data')
+                ->load(self::UPDATE_PRODUCT_ATTRIBUTE_STRING_PATH, 'path')
+                ->setValue($cronExpr)
+                ->setPath(self::UPDATE_PRODUCT_ATTRIBUTE_STRING_PATH)
+                ->save();
+            Mage::getModel('core/config_data')
+                ->load(self::UPDATE_PRODUCT_ATTRIBUTE_MODEL_PATH, 'path')
+                ->setValue((string) Mage::getConfig()->getNode(self::UPDATE_PRODUCT_ATTRIBUTE_MODEL_PATH))
+                ->setPath(self::UPDATE_PRODUCT_ATTRIBUTE_MODEL_PATH)
+                ->save();
+        } catch (Exception $e) {
+            throw new TIG_PostNL_Exception(
+                Mage::helper('postnl')->__('Unable to save update_product_attribute cron expression: %s', $cronExpr),
+                self::UPDATE_PRODUCT_ATTRIBUTE_ERROR_CODE,
+                $e
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Install new matrix rate data.
+     *
+     * @param array $data
+     *
+     * @return $this
+     */
+    public function installMatrixRates(array $data)
+    {
+        try {
+            Mage::getResourceModel('postnl_carrier/matrixrate')->import($data);
+        } catch (Exception $e) {
+            Mage::helper('postnl')->logException($e);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add newly supported shipping methods.
+     *
+     * @param array|string $methods
+     *
+     * @return $this
+     */
+    public function addSupportedShippingMethods($methods)
+    {
+        if (!is_array($methods)) {
+            $methods = array($methods);
+        }
+
+        /**
+         * Get the current shipping methods for the default config.
+         */
+        $defaultShippingMethods = Mage::getStoreConfig(
+            'postnl/advanced/postnl_shipping_methods',
+            Mage_Core_Model_App::ADMIN_STORE_ID
+        );
+
+        $defaultShippingMethods    = explode(',', $defaultShippingMethods);
+
+        /**
+         * Merge with the new methods and save the config.
+         */
+        $newDefaultShippingMethods = array_merge($defaultShippingMethods, $methods);
+        Mage::getConfig()->saveConfig(
+            'postnl/advanced/postnl_shipping_methods',
+            implode(',', $newDefaultShippingMethods),
+            'default',
+            Mage_Core_Model_App::ADMIN_STORE_ID
+        );
+
+        return $this;
+    }
+
+    /**
+     * Copy a config setting from an old xpath to a new xpath directly in the database, rather than using Magento config
+     * entities.
+     *
+     * @param string $fromXpath
+     * @param string $toXpath
+     *
+     * @return $this
+     */
+    public function moveConfigSettingInDb($fromXpath, $toXpath)
+    {
+        $conn = $this->getConnection();
+
+        try {
+            $select = $conn->select()
+                           ->from($this->getTable('core/config_data'))
+                           ->where('path = ?', $fromXpath);
+
+            $result = $conn->fetchAll($select);
+            foreach ($result as $row) {
+                try {
+                    /**
+                     * Copy the old setting to the new setting.
+                     *
+                     * @todo Check if the row already exists.
+                     */
+                    $conn->insert(
+                        $this->getTable('core/config_data'),
+                        array(
+                            'scope'    => $row['scope'],
+                            'scope_id' => $row['scope_id'],
+                            'value'    => $row['value'],
+                            'path'     => $toXpath
+                        )
+                    );
+                } catch (Exception $e) {
+                    Mage::helper('postnl')->logException($e);
+                }
+            }
+        } catch (Exception $e) {
+            Mage::helper('postnl')->logException($e);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Moves and merges the PostNL active setting to and with the PostNL mode setting.
+     *
+     * @return $this
+     */
+    public function moveActiveSetting()
+    {
+        $conn = $this->getConnection();
+
+        try {
+            /**
+             * Modify all mode settings with value 0 (Live) to value 2 (the new live mode value).
+             */
+            $conn->update(
+                $this->getTable('core/config_data'),
+                array(
+                    'value' => 2,
+                ),
+                array(
+                    'path = ?' => 'postnl/cif/mode',
+                    'value = ?' => 0
+                )
+            );
+        } catch (Exception $e) {
+            Mage::helper('postnl')->logException($e);
+        }
+
+        try {
+            /**
+             * Get all scopes for which PostNl is disabled.
+             */
+            $disabledSelect = $conn->select()
+                                   ->from($this->getTable('core/config_data'))
+                                   ->where('path = ?', 'postnl/general/active')
+                                   ->where('value = ?', 0);
+
+            $disabledRows = $conn->fetchAll($disabledSelect);
+            foreach ($disabledRows as $disabledRow) {
+                try {
+                    /**
+                     * Set the mode to 0 (off) for these scopes.
+                     */
+                    $conn->update(
+                        $this->getTable('core/config_data'),
+                        array(
+                            'value' => 0,
+                        ),
+                        array(
+                            'path = ?'     => 'postnl/cif/mode',
+                            'scope_id = ?' => $disabledRow['scope_id'],
+                            'scope = ?'    => $disabledRow['scope'],
+                        )
+                    );
+                } catch (Exception $e) {
+                    Mage::helper('postnl')->logException($e);
+                }
+            }
+        } catch (Exception $e) {
+            Mage::helper('postnl')->logException($e);
+        }
 
         return $this;
     }
