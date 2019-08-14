@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/tig_postnl",
+    "type": "magento-module",
+    "license": "Creative-Commons-License",
+    "homepage": "",
+    "description": "The official PostNL extension for Magento",
+    "authors": [
+    {
+        "name": "TiG",
+        "email": "servicedesk@totalinternetgroup.nl"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
